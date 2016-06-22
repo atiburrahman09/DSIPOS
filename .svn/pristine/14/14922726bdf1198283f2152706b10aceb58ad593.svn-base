@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<configuration>
+  <!--<configSections>
+    <section name="cssAgent" type="KeithClark.Web.CSSAgentConfigurationSection"/>
+  </configSections>-->
+  <!--<cssAgent useSvgGradients="true"/>-->
+  <appSettings>
+    <add key="encryptLumexDBConString" value="false" />
+    <add key="encryptMailSetting" value="false" />
+    <add key="attachmentPath" value="~/Attachment/" />
+    <add key="databaseBackupPath" value="D:\BackupDB\" />
+    <add key="nullDate" value="1900-01-01" />
+    <add key="appDateFormat" value="d/M/yyyy" />
+    <add key="appDateFormatView" value="dd/MM/yyyy" />
+    <add key="appDateTimeFormat" value="" />
+    <add key="appDateTimeFormatView" value="" />
+    <add key="appTimeFormatOnly" value="" />
+    <add key="CrystalImageCleaner-AutoStart" value="true" />
+    <add key="CrystalImageCleaner-Sleep" value="60000" />
+    <add key="CrystalImageCleaner-Age" value="120000" />
+  </appSettings>
+  <connectionStrings>
+    <!--<add name="LumexDBConString" connectionString="Server=AQQA-PC;Database=lmx_ipos_wh;Persist Security Info=true;Uid=dbpos;Password=123"/>-->
+    <!--<add name="LumexDBConString" connectionString="Server=172.16.0.21;Database=;Persist Security Info=true;Uid=acuser;Password=1 321canT"/>-->
+    <!--<add name="LumexDBConString" connectionString="Server=DS_SRV\SQLEXPRESS;Database=dsipos;Persist Security Info=true;Uid=sa;Password=aqqadorbar"/>-->
+    <!--<add name="LumexDBConString" connectionString="Server=LUMEX-05-PC;Database=DSIPOS;Persist Security Info=true;Uid=lmxdevdb;Password=123;Max Pool Size=20000;"/>-->
+
+    <add name="LumexDBConString" connectionString="Server=ASUS-PC;Database=dsipos;Persist Security Info=true;Uid=sa;Password=shv123;Max Pool Size=20000;"/>
+    <add name="LumexDBConStrLib" connectionString="Server=ASUS-PC;Database=dslibrary;Persist Security Info=true;Uid=sa;Password=shv123;Max Pool Size=20000;"/>
+
+
+  </connectionStrings>
+
+  <system.web>
+    <pages clientIDMode="Static"/>
+    <!--<pages enableEventValidation="false"/>-->
+    <compilation debug="true" targetFramework="4.0">
+      <assemblies>
+        <add assembly="CrystalDecisions.Web, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="CrystalDecisions.ReportAppServer.Controllers, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="CrystalDecisions.ReportAppServer.DataDefModel, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692FBEA5521E1304"/>
+        <add assembly="CrystalDecisions.ReportAppServer.ClientDoc, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304"/>
+      </assemblies>
+    </compilation>
+    <customErrors mode="Off"/>
+    <httpHandlers>
+      <add verb="GET" path="CrystalImageHandler.aspx" type="CrystalDecisions.Web.CrystalImageHandler, CrystalDecisions.Web, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304"/>
+    </httpHandlers>
+  </system.web>
+
+  <system.net>
+    <mailSettings>
+      <smtp deliveryMethod="Network" from="support@lumextech.com">
+        <network host="mail.lumextech.com" userName="support@lumextech.com" password="Lum3xt3c4mail#" port="25"/>
+      </smtp>
+    </mailSettings>
+  </system.net>
+
+  <system.webServer>
+    <handlers>
+      <!--<add name="CSS Agent" path="*.css" verb="GET" type="KeithClark.Web.CSSAgent"/>-->
+      <add name="CrystalImageHandler.aspx_GET" verb="GET" path="CrystalImageHandler.aspx" type="CrystalDecisions.Web.CrystalImageHandler, CrystalDecisions.Web, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304" preCondition="integratedMode"/>
+    </handlers>
+    <staticContent>
+      <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="30.00:00:00"/>
+    </staticContent>
+    <validation validateIntegratedModeConfiguration="false"/>
+  </system.webServer>
+</configuration>

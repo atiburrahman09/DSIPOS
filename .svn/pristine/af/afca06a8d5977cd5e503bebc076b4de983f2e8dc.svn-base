@@ -1,0 +1,84 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App.Master" AutoEventWireup="true" CodeBehind="Search.aspx.cs" Inherits="lmxIpos.UI.Library.Book.Search" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="headContentPlaceHolder" runat="server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="bodyContentPlaceHolder" runat="server">
+    <asp:UpdatePanel runat="server" UpdateMode="Conditional" ID="UpdatePanel1" ChildrenAsTriggers="false">
+        <ContentTemplate>
+            <div class="data">
+                <div id="msgbox" runat="server" visible="false" class="alert alert-block alert-success">
+                    <button data-dismiss="alert" class="close" type="button">
+                        <i class="icon icon-times"></i>
+                    </button>
+                    <h4>
+                        <asp:Label ID="msgTitleLabel" runat="server" Text=""></asp:Label>
+                    </h4>
+                    <asp:Label ID="msgDetailLabel" runat="server" Text=""></asp:Label>
+                </div>
+
+                <div class="grid-title text-center">
+                    <h3>MUHAMMADIYA <span class="semi-bold">LIBRARY</span></h3>
+                    <br />
+                    <br />
+
+                </div>
+                <div class="grid-12">
+
+                    <div class="grid-12 padding10">
+                        <asp:TextBox ID="txtbxSearch" runat="server" CssClass="padding15"></asp:TextBox>
+                        <asp:Button ID="btnSearch" runat="server" CssClass="btn btn-info " Text="Search" OnClick="btnSearch_OnClick" />
+                    </div>
+                    <div class="grid-12" >
+                        <asp:CheckBoxList ID="bookCheckBoxList" CssClass="form-control" runat="server" RepeatLayout="flow" RepeatDirection="Horizontal">
+                            <asp:ListItem Text="Book Name"  Value="BN"></asp:ListItem>
+                            <asp:ListItem Text="Writter Name" Value="WN"></asp:ListItem>
+                            <asp:ListItem Text="Publisher Name" Value="PN"></asp:ListItem>
+                            <asp:ListItem Text="Book Language" Value="BL"></asp:ListItem>
+                        </asp:CheckBoxList>
+                        <%--<div class="custom">
+                    <asp:CheckBox ID="checkBoxName" CssClass="" runat="server" Text="Book Name  " />
+                </div>
+
+                <div class="custom">
+                    <asp:CheckBox ID="checkBoxWritterName" CssClass="" runat="server" Text="Writter Name:  " />
+                </div>
+                <div class="custom">
+                    <asp:CheckBox ID="checkBoxPublisherName" CssClass="" runat="server" Text="Publisher Name:  " />
+                </div>
+                <div class="custom">
+                    <asp:CheckBox ID="checkBoxLanguage" CssClass="" runat="server" Text="Book Language:  " />
+                </div>--%>
+                    </div>
+                </div>
+
+            </div>
+        </ContentTemplate>
+        <Triggers>
+            <asp:AsyncPostBackTrigger ControlID="btnSearch" EventName="Click" />
+            </Triggers>
+    </asp:UpdatePanel>
+</asp:Content>
+<asp:Content ID="Content3" ContentPlaceHolderID="scriptContentPlaceHolder" runat="server">
+    <script type="text/javascript">
+        function pageLoad(sender, args) {
+           $.ajax({
+                type: "POST",
+                url: "/Services/BookName.ashx",
+                success: function (d) {
+                    var array = [];
+                    d.split(';').forEach(function (value) {
+                        array.push(value);
+                    });
+                    $('#txtbxSearch').typeahead({ source: array });
+
+                }
+            });
+
+          
+
+        
+
+        
+        }
+    </script>
+</asp:Content>

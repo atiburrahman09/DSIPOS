@@ -1,0 +1,166 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.Book
+{
+    public partial class Update : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                UpdateUserInfo();
+            }
+
+        }
+        protected void UpdateUserInfo()
+        {
+
+            BookBLL bookBll = new BookBLL();
+
+            try
+            {
+
+                bookBll.KitaberSerialNo = LumexSessionManager.Get("BookIdForUpdate").ToString();
+                DataTable dt = new DataTable();
+                dt = bookBll.GetBookListBySerial();
+                msgTitleLabel.Text = bookBll.KitabNo;
+                if (dt.Rows.Count > 0)
+                {
+                    txtbxNo.Text = dt.Rows[0]["BookId"].ToString();
+                    txtbxKitaberSerialNo.Text = dt.Rows[0]["BookSerial"].ToString();
+                    txtbxAlmariNo.Text = dt.Rows[0]["AlmariNo"].ToString();
+                    txtbxTakNo.Text = dt.Rows[0]["takno"].ToString();
+                    txtbxKitabNo.Text = dt.Rows[0]["KitabNo"].ToString();
+                    txtbxKolamNo.Text = dt.Rows[0]["KolamNo"].ToString();
+                    txtbxCopyNumber.Text = dt.Rows[0]["CopyNo"].ToString();
+                    txtbxTotalVolume.Text = dt.Rows[0]["TotalVolium"].ToString();
+                    txtbxVolumeNo.Text = dt.Rows[0]["Volium"].ToString();
+                    txtbxKhondoNo.Text = dt.Rows[0]["PartNo"].ToString();
+                    txtbxPageNo.Text = dt.Rows[0]["PageNo"].ToString();
+                    txtbxPrice.Text = dt.Rows[0]["Price"].ToString();
+                    txtbxKitaberMainName.Text = dt.Rows[0]["BookName"].ToString();
+                    txtbxKitaberSpecialName.Text = dt.Rows[0]["BookKnownName"].ToString();
+                    txtbxWritter.Text = dt.Rows[0]["WriterName"].ToString();
+                    txtbxWritterBornDate.Text = dt.Rows[0]["WriterDOB"].ToString();
+                    txtbxWritterDeathDate.Text = dt.Rows[0]["WriterDD"].ToString();
+                    txtbxWritterMajhab.Text = dt.Rows[0]["WriterMazhab"].ToString();
+                    txtbxSongkolp.Text = dt.Rows[0]["Songkolok"].ToString();
+                    txtbxTranslator.Text = dt.Rows[0]["Onubadok"].ToString();
+                    txtbxTranslatorsDate.Text = dt.Rows[0]["OnubadokDOB_DD"].ToString();
+                    txtbxTranslatorMajhab.Text = dt.Rows[0]["OnubadokMazvab"].ToString();
+                    ddlMainLanguage.SelectedValue = dt.Rows[0]["BookLanguage"].ToString();
+                    ddlTranslatedLanguage.SelectedValue = dt.Rows[0]["TranslateLanguage"].ToString();
+                    txtbxSubject.Text = dt.Rows[0]["Bishoy"].ToString();
+                    txtbxChapter.Text = dt.Rows[0]["Chapter"].ToString();
+                    txtbxProkashok.Text = dt.Rows[0]["Publisher"].ToString();
+                    txtbxProkashkal.Text = dt.Rows[0]["PublishDate"].ToString();
+                    txtbxProkashoni.Text = dt.Rows[0]["Publication"].ToString();
+                    txtbxProkashsthan.Text = dt.Rows[0]["PublicationPlace"].ToString();
+                    //txtbxp.Text = dt.Rows[0]["PublishYear"].ToString();
+                    txtbxSompadona.Text = dt.Rows[0]["Editor"].ToString();
+                    txtbxSongokoron.Text = dt.Rows[0]["Edition"].ToString();
+                    txtbxSarSonkhep.Text = dt.Rows[0]["suchi"].ToString();
+                    txtbxComment.Text = dt.Rows[0]["Remarks"].ToString();
+                    // txtbxContactMobile.Text = dt.Rows[0]["BookId"].ToString();
+                    //txtContactEmail.Text = dt.Rows[0]["Songkolok"].ToString();
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        protected void btnSave_OnClick(object sender, EventArgs e)
+        {
+            BookBLL aBook = new BookBLL();
+            bool status = false;
+            try
+            {
+                aBook.No = txtbxNo.Text.Trim();
+                aBook.KitaberSerialNo = txtbxKitaberSerialNo.Text.Trim();
+                aBook.AlmariNo = txtbxAlmariNo.Text.Trim();
+                aBook.TakNo = txtbxTakNo.Text.Trim();
+                aBook.KolamNo = txtbxKolamNo.Text.Trim();
+                aBook.KitabNo = txtbxKitabNo.Text.Trim();
+                aBook.CopyNo = txtbxCopyNumber.Text.Trim();
+                aBook.TotalVolumeNo = txtbxTotalVolume.Text.Trim();
+                aBook.VolumeNo = txtbxVolumeNo.Text.Trim();
+                aBook.KhondoNo = txtbxKhondoNo.Text.Trim();
+                aBook.PageNumber = txtbxPageNo.Text.Trim();
+                aBook.Price = txtbxPrice.Text.Trim();
+                aBook.KitaberMainName = txtbxKitaberMainName.Text.Trim();
+                aBook.KitaberMashurName = txtbxKitaberSpecialName.Text.Trim();
+                aBook.Writter = txtbxWritter.Text.Trim();
+                aBook.WritterBirthYear = txtbxWritterBornDate.Text.Trim();
+                aBook.WritterDeathYear = txtbxWritterDeathDate.Text.Trim();
+                aBook.WritterMajhab = txtbxWritterMajhab.Text.Trim();
+                aBook.Songkolok = txtbxSongkolp.Text.Trim();
+                aBook.Translator = txtbxTranslator.Text.Trim();
+                aBook.TranslatorDate = txtbxTranslatorsDate.Text.Trim();
+                aBook.TranslatorMajhab = txtbxTranslatorMajhab.Text.Trim();
+                aBook.KitaberMainLanguage = ddlMainLanguage.SelectedItem.Text.Trim();
+                aBook.KitaberTranslateLanguage = ddlTranslatedLanguage.SelectedItem.Text.Trim();
+                aBook.Subject = txtbxSubject.Text.Trim();
+                aBook.Chapter = txtbxChapter.Text.Trim();
+                aBook.Publisher = txtbxProkashok.Text.Trim();
+                aBook.PublishDate = txtbxProkashkal.Text.Trim();
+                aBook.Publication = txtbxProkashoni.Text.Trim();
+                aBook.PublicationPlace = txtbxProkashsthan.Text.Trim();
+                aBook.Sompadona = txtbxSompadona.Text.Trim();
+                aBook.Songskoron = txtbxSongokoron.Text.Trim();
+                aBook.Summary = txtbxSarSonkhep.Text.Trim();
+                aBook.Comment = txtbxComment.Text.Trim();
+                status = aBook.UpdateBook();
+
+                if (status)
+                {
+                    string message =
+                                     "Book <span class='actionTopic'>Updated</span> Successfully ";
+                    MyAlertBox(
+                        "var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/Library/Book/List.aspx\"; }; SuccessAlert(\"" +
+                        "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                }
+                else
+                {
+                    string message = "Book <span class='actionTopic'>Update</span> Failed.";
+                    MyAlertBox(
+                        "var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/Library/Book/List.aspx\"; }; SuccessAlert(\"" +
+                        "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                }
+
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        //protected void AlertBox(string msg)
+        //{
+        //    string message = msg;
+        //    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        //    sb.Append("alert('");
+        //    sb.Append(message);
+        //    sb.Append("');");
+        //    ClientScript.RegisterOnSubmitStatement(this.GetType(), "alert", sb.ToString());
+
+        //}
+    }
+}

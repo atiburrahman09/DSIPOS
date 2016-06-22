@@ -1,0 +1,85 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using Lumex.Project.DAL;
+using Lumex.Tech;
+
+namespace Lumex.Project.BLL
+{
+    public class PaymentScheduleBLL
+    {
+
+        public System.Data.DataTable GetPaymentScheduleList()
+        {
+            PaymentScheduleDAL paymentScheduleDal = new PaymentScheduleDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = paymentScheduleDal.GetPaymentScheduleList(db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                paymentScheduleDal = null;
+            }
+        }
+
+        public decimal ServiceAmount { get; set; }
+
+        public string ScheduleDate { get; set; }
+        public string SCWHId { get; set; }
+        public string CustomerId { get; set; }
+
+
+        public DataTable CheckSchduleEntry(string SCWHId, string CustomerId)
+        {
+            PaymentScheduleDAL paymentScheduleDal = new PaymentScheduleDAL();
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = paymentScheduleDal.CheckSchduleEntry(SCWHId,CustomerId,db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                paymentScheduleDal = null;
+            }
+        }
+
+        public DataTable SavePaymentSchedule()
+        {
+            PaymentScheduleDAL paymentScheduleDal = new PaymentScheduleDAL();
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = paymentScheduleDal.SavePaymentSchedule(this, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                paymentScheduleDal = null;
+            }
+        }
+    }
+}

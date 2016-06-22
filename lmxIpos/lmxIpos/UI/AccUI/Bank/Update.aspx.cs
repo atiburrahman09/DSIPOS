@@ -1,0 +1,138 @@
+﻿using System;
+using System.Data;
+using System.Web.UI;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.AccUI.Bank
+{
+    public partial class Update : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+                    //Page.Title = Header3.InnerText;
+                    idLabel.Text = bankIdForUpdateHiddenField.Value = LumexSessionManager.Get("BankIdForUpdate").ToString().Trim();
+                    GetBankById(bankIdForUpdateHiddenField.Value.Trim());
+                    bankNameTextBox.Focus();
+                }
+            }
+            catch (Exception ex)
+            {
+                updateButton.Enabled = false;
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void GetBankById(string bankId)
+        {
+            BankBLL bank = new BankBLL();
+
+            try
+            {
+                DataTable dt = bank.GetBankById(bankId);
+
+                if (dt.Rows.Count > 0)
+                {
+                    bankNameForUpdateHiddenField.Value = bankNameTextBox.Text = dt.Rows[0]["BankName"].ToString();
+                    descriptionTextBox.Text = dt.Rows[0]["Description"].ToString();
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Bank Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                bank = null;
+            }
+        }
+
+        protected void updateButton_Click(object sender, EventArgs e)
+        {
+            BankBLL bank = new BankBLL();
+
+            try
+            {
+                if (bankIdForUpdateHiddenField.Value.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Bank not found to update.";
+                }
+                else if (bankNameTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Bank Name field is required.";
+                }
+                else if (descriptionTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Description field is required.";
+                }
+                else
+                {
+                    bank.BankId = bankIdForUpdateHiddenField.Value.Trim();
+                    bank.BankName = bankNameTextBox.Text.Trim();
+                    bank.Description = descriptionTextBox.Text.Trim();
+
+                    if (!bank.CheckDuplicateBank(bankNameTextBox.Text.Trim()))
+                    {
+                        bank.UpdateBank();
+
+                        bankNameForUpdateHiddenField.Value = "";
+                        bankIdForUpdateHiddenField.Value = "";
+
+                        string message = "Bank <span class='actionTopic'>Updated</span> Successfully.";
+                        MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/AccUI/Bank/List.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                    }
+                    else
+                    {
+                        if (bankNameForUpdateHiddenField.Value == bankNameTextBox.Text.Trim())
+                        {
+                            bank.BankName = "WithOut";
+                            bank.UpdateBank();
+
+                            bankNameForUpdateHiddenField.Value = "";
+                            bankIdForUpdateHiddenField.Value = "";
+
+                            string message = "Bank <span class='actionTopic'>Updated</span> Successfully.";
+                            MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/AccUI/Bank/List.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                        }
+                        else
+                        {
+                            string message = "This Bank Name <span class='actionTopic'>already exist</span>, try another one.";
+                            MyAlertBox("WarningAlert(\"" + "Data Duplicate" + "\", \"" + message + "\");");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                bank = null;
+            }
+        }
+    }
+}

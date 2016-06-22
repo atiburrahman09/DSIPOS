@@ -1,0 +1,13 @@
+﻿body {
+}
+
+.custom-input {
+    width: 140px!important;
+}
+
+.font-size {
+    font-size: 12px;
+}
+.select-size {
+    width: 156px;
+}

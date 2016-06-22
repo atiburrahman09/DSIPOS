@@ -1,0 +1,21 @@
+﻿/* File Created: December 9, 2013 */
+
+body
+{
+    background: none repeat scroll 0 0 rgb(188, 200, 218);
+}
+
+#crViewer__UI div:nth-child(2)
+{
+    margin: -1px 0 0 !important;
+}
+
+#IconImg_crViewer_toptoolbar_logo
+{
+    display: none;
+}
+
+.insetBorder
+{
+    background-color: rgb(150, 168, 195) !important;
+}

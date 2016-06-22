@@ -1,0 +1,617 @@
+﻿using System;
+using System.Data;
+using System.Web.Services;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+using Newtonsoft.Json;
+
+namespace lmxIpos.UI.AccUI.JournalVoucher
+{
+    public partial class CreateJournalVoucher : System.Web.UI.Page
+    {
+        DataTable dt = new DataTable();
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+                    if (dt.Columns.Count < 1)
+                    {
+                        dt.Columns.Add(new DataColumn("SN"));
+                        dt.Columns.Add(new DataColumn("AccountHeadName"));
+                        dt.Columns.Add(new DataColumn("BankName"));
+                        dt.Columns.Add(new DataColumn("PayToFromCompanyName"));
+                        dt.Columns.Add(new DataColumn("AccountHead"));
+                        dt.Columns.Add(new DataColumn("Amount"));
+                        dt.Columns.Add(new DataColumn("DebitCredit"));
+                        dt.Columns.Add(new DataColumn("VoucherNumber"));
+                        dt.Columns.Add(new DataColumn("ChequeNumber"));
+                        dt.Columns.Add(new DataColumn("ChequeDate"));
+                        dt.Columns.Add(new DataColumn("Bank"));
+                        dt.Columns.Add(new DataColumn("BankBranch"));
+                        dt.Columns.Add(new DataColumn("PayToFromCompany"));
+                        dt.Columns.Add(new DataColumn("Narration"));
+
+                        if (Session["dtJournalList"] == null)
+                        {
+                            LumexSessionManager.Add("dtJournalList", dt);
+                        }
+                    }
+
+                    if (drpdwnAccountOn.SelectedIndex == 0)
+                    {
+                        LoadSalesCenters();
+                    }
+
+                    LoadChartOfAccountsHeadList();
+                    LoadPayToFromCompanyList();
+                    LoadBankList();
+                    accountHeadDropDownList.Focus();
+                }
+
+                DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+                journalEntryListGridView.DataSource = dtJournalList;
+                journalEntryListGridView.DataBind();
+
+                if (journalEntryListGridView.Rows.Count > 0)
+                {
+                    journalEntryListGridView.UseAccessibleHeader = true;
+                    journalEntryListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                    saveButton.Enabled = true;
+                    clearButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                    clearButton.Enabled = false;
+                }
+
+                CalculateTotalDebitCreditAmount();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                drpdwnSalesCenterOrWarehouse.DataSource = dt;
+                drpdwnSalesCenterOrWarehouse.DataValueField = "SalesCenterId";
+                drpdwnSalesCenterOrWarehouse.DataTextField = "SalesCenterName";
+                drpdwnSalesCenterOrWarehouse.DataBind();
+                //drpdwnSalesCenterOrWarehouse.Items.Insert(0, "");
+                //drpdwnSalesCenterOrWarehouse.SelectedIndex = 0;
+
+                drpdwnSalesCenterOrWarehouse.SelectedValue = LumexSessionManager.Get("UserSalesCenterId").ToString();
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Joining Sales Center Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+
+
+        protected void LoadChartOfAccountsHeadList()
+        {
+            ChartOfAccountBLL chartOfAccount = new ChartOfAccountBLL();
+
+            try
+            {
+                DataTable dt = chartOfAccount.GetActiveAndPostedChartOfAccountsHeadList();
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    ListItem item1 = new ListItem(dt.Rows[i]["AccountHead"].ToString(), dt.Rows[i]["AccountId"].ToString());
+
+                    if (dt.Rows[i]["AccountId"].ToString().Contains("A"))
+                    {
+                        item1.Attributes["OptionGroup"] = "Asset";
+                    }
+                    else if (dt.Rows[i]["AccountId"].ToString().Contains("E"))
+                    {
+                        item1.Attributes["OptionGroup"] = "Expense";
+                    }
+                    else if (dt.Rows[i]["AccountId"].ToString().Contains("I"))
+                    {
+                        item1.Attributes["OptionGroup"] = "Income";
+                    }
+                    else if (dt.Rows[i]["AccountId"].ToString().Contains("L"))
+                    {
+                        item1.Attributes["OptionGroup"] = "Liability";
+                    }
+
+                    accountHeadDropDownList.Items.Add(item1);
+
+                }
+                //accountHeadDropDownList.DataSource = dt;
+                //accountHeadDropDownList.DataValueField = "AccountId";
+                //accountHeadDropDownList.DataTextField = "AccountHead";
+                //accountHeadDropDownList.DataBind();
+                //accountHeadDropDownList.Items.Insert(0, "");
+                //accountHeadDropDownList.SelectedIndex = 0;
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Account Head Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                chartOfAccount = null;
+            }
+        }
+
+        protected void LoadPayToFromCompanyList()
+        {
+            PayToFromCompanyBLL payToFromCompany = new PayToFromCompanyBLL();
+
+            try
+            {
+                DataTable dt = payToFromCompany.GetActivePayToFromCompanyList();
+
+                payToFromCompanyDropDownList.DataSource = dt;
+                payToFromCompanyDropDownList.DataValueField = "CompanyId";
+                payToFromCompanyDropDownList.DataTextField = "CompanyName";
+                payToFromCompanyDropDownList.DataBind();
+                payToFromCompanyDropDownList.Items.Insert(0, "");
+                payToFromCompanyDropDownList.Items.Insert(1, "N/A");
+                payToFromCompanyDropDownList.SelectedIndex = 0;
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Pay To/From Company Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                payToFromCompany = null;
+            }
+        }
+
+        protected void LoadBankList()
+        {
+            BankBLL bank = new BankBLL();
+
+            try
+            {
+                DataTable dt = bank.GetActiveBankList();
+
+                bankDropDownList.DataSource = dt;
+                bankDropDownList.DataValueField = "BankId";
+                bankDropDownList.DataTextField = "BankName";
+                bankDropDownList.DataBind();
+                bankDropDownList.Items.Insert(0, "");
+                bankDropDownList.SelectedIndex = 0;
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Bank Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                bank = null;
+            }
+        }
+
+        protected void addButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (accountHeadDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Account Head field is required.";
+                }
+                else if (amountTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Amount field is required.";
+                }
+                else if (debitCreditDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Debit/Credit field is required.";
+                }
+                else if (voucherNumberTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Voucher Number field is required.";
+                }
+                else if (payToFromCompanyDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Pay To/From Company field is required.";
+                }
+                else if (narrationTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Narration field is required.";
+                }
+                else
+                {
+                    DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+                    bool IsDuplicate = false;
+
+                    for (int i = 0; i < dtJournalList.Rows.Count; i++)
+                    {
+                        if (dtJournalList.Rows[i]["AccountHeadName"].ToString() == accountHeadDropDownList.SelectedItem.Text.ToString() && dtJournalList.Rows[i]["DebitCredit"].ToString() == debitCreditDropDownList.SelectedValue.Trim() && dtJournalList.Rows[i]["Amount"].ToString() == amountTextBox.Text.Trim() && dtJournalList.Rows[i]["PayToFromCompanyName"].ToString() == payToFromCompanyDropDownList.SelectedItem.Text.ToString() && dtJournalList.Rows[i]["ChequeNumber"].ToString() == chequeNumberTextBox.Text.Trim())
+                        {
+                            IsDuplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (IsDuplicate)
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Data Duplicate!!!"; msgDetailLabel.Text = "This Journal Entry already exist in the Journal List.";
+                    }
+                    else
+                    {
+                        DataRow dr = null;
+
+                        dr = dtJournalList.NewRow();
+
+                        dr["SN"] = (dtJournalList.Rows.Count + 1).ToString();
+                        dr["AccountHeadName"] = accountHeadDropDownList.SelectedItem.Text.ToString();
+                        dr["BankName"] = bankDropDownList.SelectedItem.Text.ToString();
+                        dr["PayToFromCompanyName"] = payToFromCompanyDropDownList.SelectedItem.Text.ToString();
+                        dr["AccountHead"] = accountHeadDropDownList.SelectedValue.Trim();
+                        dr["Amount"] = amountTextBox.Text.Trim();
+                        dr["DebitCredit"] = debitCreditDropDownList.SelectedValue.Trim();
+                        dr["VoucherNumber"] = voucherNumberTextBox.Text.Trim();
+                        dr["ChequeNumber"] = chequeNumberTextBox.Text.Trim();
+                        dr["ChequeDate"] = LumexLibraryManager.ParseAppDate(chequeDateTextBox.Text.Trim());
+                        dr["Bank"] = bankDropDownList.SelectedValue.Trim();
+                        dr["BankBranch"] = bankBranchTextBox.Text.Trim();
+                        dr["PayToFromCompany"] = payToFromCompanyDropDownList.SelectedValue.Trim();
+                        dr["Narration"] = narrationTextBox.Text.Trim();
+
+                        dtJournalList.Rows.Add(dr);
+
+                        journalEntryListGridView.DataSource = dtJournalList;
+                        journalEntryListGridView.DataBind();
+
+                        if (journalEntryListGridView.Rows.Count > 0)
+                        {
+                            journalEntryListGridView.UseAccessibleHeader = true;
+                            journalEntryListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                            saveButton.Enabled = true;
+                            clearButton.Enabled = true;
+                        }
+                        else
+                        {
+                            saveButton.Enabled = false;
+                            clearButton.Enabled = false;
+                        }
+
+                        LumexSessionManager.Remove("dtJournalList");
+                        LumexSessionManager.Add("dtJournalList", dtJournalList);
+
+                        CalculateTotalDebitCreditAmount();
+
+                        accountHeadDropDownList.SelectedValue = "";
+                        amountTextBox.Text = "";
+                        debitCreditDropDownList.SelectedValue = "";
+                        voucherNumberTextBox.Text = "";
+                        chequeNumberTextBox.Text = "";
+                        chequeDateTextBox.Text = "";
+                        bankDropDownList.SelectedValue = "";
+                        bankBranchTextBox.Text = "";
+                        payToFromCompanyDropDownList.SelectedValue = "";
+                        narrationTextBox.Text = "";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void removeLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                GridViewRow gvRow = (GridViewRow)(sender as Control).Parent.Parent;
+                int index = gvRow.RowIndex;
+
+                DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+
+                if (journalEntryListGridView.Rows.Count >= index)
+                {
+                    dtJournalList.Rows.RemoveAt(index);
+
+                    for (int i = index; i < dtJournalList.Rows.Count; i++)
+                    {
+                        dtJournalList.Rows[i]["SN"] = (i + 1).ToString();
+                    }
+
+                    journalEntryListGridView.DataSource = dtJournalList;
+                    journalEntryListGridView.DataBind();
+
+                    if (journalEntryListGridView.Rows.Count > 0)
+                    {
+                        journalEntryListGridView.UseAccessibleHeader = true;
+                        journalEntryListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                        saveButton.Enabled = true;
+                        clearButton.Enabled = true;
+                    }
+                    else
+                    {
+                        saveButton.Enabled = false;
+                        clearButton.Enabled = false;
+                    }
+
+                    LumexSessionManager.Remove("dtJournalList");
+                    LumexSessionManager.Add("dtJournalList", dtJournalList);
+
+                    CalculateTotalDebitCreditAmount();
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void clearButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+                dtJournalList.Rows.Clear();
+
+                journalEntryListGridView.DataSource = dtJournalList;
+                journalEntryListGridView.DataBind();
+
+                if (journalEntryListGridView.Rows.Count > 0)
+                {
+                    journalEntryListGridView.UseAccessibleHeader = true;
+                    journalEntryListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                    saveButton.Enabled = true;
+                    clearButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                    clearButton.Enabled = false;
+                }
+
+                LumexSessionManager.Remove("dtJournalList");
+                LumexSessionManager.Add("dtJournalList", dtJournalList);
+
+                CalculateTotalDebitCreditAmount();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void CalculateTotalDebitCreditAmount()
+        {
+            try
+            {
+                DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+
+                decimal drAmt = 0, crAmt = 0;
+
+                for (int i = 0; i < dtJournalList.Rows.Count; i++)
+                {
+                    if (dtJournalList.Rows[i]["DebitCredit"].ToString() == "Dr")
+                    {
+                        drAmt += decimal.Parse(dtJournalList.Rows[i]["Amount"].ToString());
+                    }
+                    else
+                    {
+                        crAmt += decimal.Parse(dtJournalList.Rows[i]["Amount"].ToString());
+                    }
+                }
+
+                drAmtLabel.Text = drAmt.ToString();
+                crAmtLabel.Text = crAmt.ToString();
+
+                if (drAmt == crAmt && journalEntryListGridView.Rows.Count > 0)
+                {
+                    saveButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        [WebMethod]
+        public static string GetJournalEntryViewByJournal(string SN)
+        {
+            try
+            {
+                DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+
+                DataView view = new DataView(dtJournalList);
+                view.RowFilter = "SN=" + SN;
+
+                dtJournalList = view.ToTable();
+
+                string json = JsonConvert.SerializeObject(dtJournalList);
+                json = json.Substring(1, json.Length - 2);
+
+                return json;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        protected void saveButton_Click(object sender, EventArgs e)
+        {
+            JournalVoucherBLL journalVoucher = new JournalVoucherBLL();
+
+            try
+            {
+                DataTable dtJournalList = (DataTable)LumexSessionManager.Get("dtJournalList");
+
+                if (decimal.Parse(drAmtLabel.Text.Trim()) != decimal.Parse(crAmtLabel.Text.Trim()))
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Total Debit & Credit Amount must be Same.";
+                }
+                else if (journalEntryListGridView.Rows.Count != dtJournalList.Rows.Count)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Total Journal Entry Mismatch.";
+                }
+                else
+                {
+                    DataTable dt = journalVoucher.SaveJournalVoucher(drpdwnSalesCenterOrWarehouse.SelectedValue, dtJournalList);
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        LumexSessionManager.Remove("dtJournalList");
+                        string message = "Journal Voucher <span class='actionTopic'>Created</span> Successfully with Journal Number: <span class='actionTopic'>" + dt.Rows[0][0].ToString() + "</span>.";
+                        MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/AccUI/JournalVoucher/JournalVoucherList.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                    }
+                    else
+                    {
+                        string message = "<span class='actionTopic'>Failed</span> to Create Journal Voucher.";
+                        MyAlertBox("ErrorAlert(\"" + "Process Failed" + "\", \"" + message + "\");");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                journalVoucher = null;
+            }
+        }
+
+        protected void drpdwnAccountOn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (drpdwnAccountOn.SelectedIndex == 0)
+                {
+                    drpdwnSalesCenterOrWarehouse.Items.Clear();
+                    LoadSalesCenters();
+                    titleSalesCenterOrWarehouse.Text = "Sales Center";
+                }
+                else if (drpdwnAccountOn.SelectedIndex == 1)
+                {
+                    drpdwnSalesCenterOrWarehouse.Items.Clear();
+                    LoadWarehouse();
+                    titleSalesCenterOrWarehouse.Text = "Warehouse";
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        private void LoadWarehouse()
+        {
+            WarehouseBLL warehouse = new WarehouseBLL();
+
+            try
+            {
+                DataTable dt = warehouse.GetActiveWarehouseListByUser();
+
+                drpdwnSalesCenterOrWarehouse.DataSource = dt;
+                drpdwnSalesCenterOrWarehouse.DataTextField = "WarehouseName";
+                drpdwnSalesCenterOrWarehouse.DataValueField = "WarehouseId";
+                drpdwnSalesCenterOrWarehouse.DataBind();
+                //drpdwnSalesCenterOrWarehouse.Items.Insert(0, "");
+                //drpdwnSalesCenterOrWarehouse.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+    }
+}

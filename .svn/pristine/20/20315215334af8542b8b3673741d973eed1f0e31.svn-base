@@ -1,0 +1,255 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App.Master" AutoEventWireup="true"
+    CodeBehind="SalesOrderDetail.aspx.cs" Inherits="lmxIpos.UI.SalesOrder.SalesOrderDetail" %>
+
+<asp:Content ID="headContent" ContentPlaceHolderID="headContentPlaceHolder" runat="server">
+    <link href="/Content/Style/CSSPages/SalesOrderDetail.css" rel="stylesheet" type="text/css" />
+</asp:Content>
+<asp:Content ID="bodyContent" ContentPlaceHolderID="bodyContentPlaceHolder" runat="server">
+    <div id="body_content">
+        <fieldset>
+            <legend>Sales Order [<asp:Label ID="idLabel" runat="server" Text=""></asp:Label>]</legend>
+            <div id="msgbox" runat="server" visible="false" class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">
+                    &times;</button>
+                <h4>
+                    <asp:Label ID="msgTitleLabel" runat="server" Text=""></asp:Label>
+                </h4>
+                <asp:Label ID="msgDetailLabel" runat="server" Text=""></asp:Label>
+            </div>
+            <table class="inputControlContainer">
+                <tr>
+                    <td>
+                        <label>
+                            Order ID:
+                            <asp:Label ID="orderIdLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                        <label>
+                            Order Date:
+                            <asp:Label ID="orderDateLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Sales Center ID & Name:
+                            <asp:Label ID="salesCenterIdLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                        <label>
+                            <asp:Label ID="salesCenterNameLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Sales Person ID & Name:
+                            <asp:Label ID="salesPersonIdLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                        <label>
+                            <asp:Label ID="salesPersonNameLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Narration:
+                            <asp:Label ID="narrationLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                        <label>
+                            Status:
+                            <asp:Label ID="statusLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Customer ID:
+                        </label>
+                        <label>
+                            <asp:Label ID="customerIdLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Customer Name:
+                        </label>
+                        <label>
+                            <asp:Label ID="customerNameLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Customer Contact Number:
+                        </label>
+                        <label>
+                            <asp:Label ID="customerContactNumberLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Customer Address:
+                        </label>
+                        <label>
+                            <asp:Label ID="customerAddressLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Transport Type:
+                        </label>
+                        <label>
+                            <asp:Label ID="transportTypeLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Shipping Address:
+                        </label>
+                        <label>
+                            <asp:Label ID="shippingAddressLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Billing Address:
+                        </label>
+                        <label>
+                            <asp:Label ID="billingAddressLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Payment Mode:
+                        </label>
+                        <label>
+                            <asp:Label ID="paymentModeLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Cheque Number:
+                        </label>
+                        <label>
+                            <asp:Label ID="chequeNumberLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Cheque Date:
+                        </label>
+                        <label>
+                            <asp:Label ID="chequeDateLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Bank:
+                        </label>
+                        <label>
+                            <asp:Label ID="bankLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Bank Branch:
+                        </label>
+                        <label>
+                            <asp:Label ID="bankBranchLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Delivery Date:
+                        </label>
+                        <label>
+                            <asp:Label ID="deliveryDateLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            LC Number:
+                        </label>
+                        <label>
+                            <asp:Label ID="lcNumberLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Transport Date:
+                        </label>
+                        <label>
+                            <asp:Label ID="transportDateLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+            <hr />
+            <div id="salesOrderProductListGridContainer" class="container">
+                <asp:GridView ID="salesOrderProductListGridView" runat="server" AutoGenerateColumns="false"
+                    CssClass="table table-hover gridView">
+                    <Columns>
+                        <asp:BoundField DataField="ProductId" HeaderText="Product ID" />
+                        <asp:BoundField DataField="ProductName" HeaderText="Product Name" />
+                        <asp:BoundField DataField="FreeQuantityWasUnit" HeaderText="Free Quantity Was" />
+                        <asp:BoundField DataField="QuantityUnit" HeaderText="Quantity" />
+                        <asp:BoundField DataField="RatePerUnit" HeaderText="Rate Per Unit" />
+                        <asp:BoundField DataField="Amount" HeaderText="Amount" />
+                    </Columns>
+                </asp:GridView>
+            </div>
+            <hr />
+            <table class="inputControlContainer">
+                <tr>
+                    <td>
+                        <label>
+                            Total Amount:
+                            <asp:Label ID="totalAmountLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            VAT (%):
+                            <asp:Label ID="vatLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Total Receivable:
+                            <asp:Label ID="totalReceivableLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            Received Amount:
+                            <asp:Label ID="receivedAmountLabel" runat="server" Text="" CssClass="infoLabel"></asp:Label>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </div>
+    <asp:HiddenField ID="salesOrderIdForViewHiddenField" runat="server" />
+</asp:Content>
+<asp:Content ID="scriptContent" ContentPlaceHolderID="scriptContentPlaceHolder" runat="server">
+    <script type="text/javascript">
+        $(function () {
+            $("#salesOrderProductListGridView").dataTable({
+                "bProcessing": true,
+                "sPaginationType": "full_numbers",
+                "aLengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
+                "iDisplayLength": -1,
+                "bSort": true,
+                //"aoColumnDefs": [{ 'bSortable': false, 'aTargets': []}],
+                "bFilter": false,
+                "bLengthChange": true,
+                "bPaginate": false,
+                "bInfo": true
+            });
+
+            $("#salesOrderProductListGridView_wrapper .row-fluid:nth-child(1)").css("display", "none");
+        });
+    </script>
+</asp:Content>

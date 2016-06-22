@@ -1,0 +1,203 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data;
+using Lumex.Tech;
+using Lumex.Project.BLL;
+using System.Drawing;
+
+namespace lmxIpos.UI.SalesCenter
+{
+    public partial class SalesCenterStock : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                LoadSalesCenters();
+                drpdwnSalesCenterName.Focus();
+                getStockLimit();
+            }
+            if (gridviewSalesCenterStock.Rows.Count > 0)
+            {
+                gridviewSalesCenterStock.UseAccessibleHeader = true;
+                gridviewSalesCenterStock.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+
+        }
+
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                drpdwnSalesCenterName.DataSource = dt;
+                drpdwnSalesCenterName.DataValueField = "SalesCenterId";
+                drpdwnSalesCenterName.DataTextField = "SalesCenterName";
+                drpdwnSalesCenterName.DataBind();
+                drpdwnSalesCenterName.Items.Insert(0, "Slect Please");
+                drpdwnSalesCenterName.SelectedIndex = 0;
+
+                //drpdwnSalesCenterName.SelectedValue = LumexSessionManager.Get("UserSalesCenterId").ToString();
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Joining Sales Center Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void btnNotificationLimit_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+                salesCenter.StockLimit = txtNotification.Text;
+                // salesCenter.SalesCenterId = 
+                bool status = salesCenter.UpdateSalesCenterNotificationLimit();
+                if (status)
+                {
+                    string message = "Sales Center <span class='actionTopic'>Stock Margin</span> Successfully Updated";
+                    MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", \"\");");
+                }
+                else
+                {
+                    string message = "<span class='actionTopic'>Failed</span> to Update Sales Center Stock.";
+                    MyAlertBox("ErrorAlert(\"" + "Process Failed" + "\", \"" + message + "\");");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+
+            }
+        }
+
+        protected void getStockLimit()
+        {
+            try
+            {
+                SalesCenterBLL salesCenter = new SalesCenterBLL();
+                DataTable dt = salesCenter.getStockNotificationLimit();
+                if (dt.Rows.Count > 0)
+                {
+                    txtNotification.Text = dt.Rows[0][0].ToString();
+                }
+                else
+                {
+                    txtNotification.Text = "0";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+
+            }
+        }
+        protected void drpdwnSalesCenterName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                SalesCenterBLL salesCenter = new SalesCenterBLL();
+                DataTable dt = salesCenter.getAvailableProductListBySalesCenter(drpdwnSalesCenterName.SelectedValue);
+                gridviewSalesCenterStock.DataSource = dt;
+                gridviewSalesCenterStock.DataBind();
+
+                if (dt.Rows.Count < 0)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Product List Not Found for this Sales Center!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+
+                if (gridviewSalesCenterStock.Rows.Count > 0)
+                {
+                    gridviewSalesCenterStock.UseAccessibleHeader = true;
+                    gridviewSalesCenterStock.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+
+        }
+
+
+        protected void gridviewSalesCenterStock_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            e.Row.Attributes.Add("style", "cursor:help;");
+            try
+            {
+                if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowState == DataControlRowState.Alternate)
+                {
+
+                    if (e.Row.RowType == DataControlRowType.DataRow)
+                    {
+                        if (Convert.ToDecimal(e.Row.Cells[4].Text) <= Convert.ToDecimal(txtNotification.Text))
+                        {
+                            e.Row.BackColor = System.Drawing.Color.FromName("#fcd036");
+                        }
+                    }
+                }
+                else
+                {
+                    //if (e.Row.RowType == DataControlRowType.DataRow)
+                    //{
+                    //    e.Row.Attributes.Add("onmouseover", "this.style.backgroundColor='orange'");
+                    //    e.Row.Attributes.Add("onmouseout", "this.style.backgroundColor='gray'");
+                    //    e.Row.BackColor = Color.FromName("gray");
+                    //}
+                    if (e.Row.RowType == DataControlRowType.DataRow)
+                    {
+                        if (Convert.ToDecimal(e.Row.Cells[4].Text) <= Convert.ToDecimal(txtNotification.Text))
+                        {
+                            e.Row.BackColor = System.Drawing.Color.FromName("#fcd036");
+                        }
+                    }
+
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+
+
+    }
+}

@@ -1,0 +1,58 @@
+﻿
+using System;
+using System.Collections.Generic;
+using System.Data;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace Lumex.Project.DAL
+{
+    public class PurchaseReturnDAL
+    {
+        public string SavePurchaseReturn(List<PurchaseReturnBLL> purchaseReturns, string whscId, string narration, LumexDBPlayer db)
+        {
+            string productRequisitionId = string.Empty;
+
+            try
+            {
+                db.ClearParameters();
+                db.AddParameters("@WHSCId", whscId.Trim());
+                db.AddParameters("@Narration", narration.Trim());
+                db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+
+                DataTable dt = db.ExecuteDataTable("INSERT_PRODUCT_REQUISITION", true);
+
+                if (dt.Rows.Count > 0)
+                {
+                    productRequisitionId = dt.Rows[0][0].ToString();
+
+                    for (int i = 0; i < purchaseReturns.Count; i++)
+                    {
+                        db.ClearParameters();
+                        db.AddParameters("@ProductRequisitionId", productRequisitionId.Trim());
+                        db.AddParameters("@ProductId", purchaseReturns[i].ProductId.Trim());
+                        db.AddParameters("@RequisitionQuantity", purchaseReturns[i].ReturnQuantity.Trim());
+                        db.AddParameters("@Narration", purchaseReturns[i].ProductNarration.Trim());
+
+                        db.ExecuteNonQuery("INSERT_PRODUCT_REQUISITION_PRODUCT", true);
+                    }
+                }
+                else
+                {
+                    db.ExecuteDataTable("there_is_no_procedure_to_execute", false);
+                }
+
+                return productRequisitionId;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                purchaseReturns = null;
+            }
+        }
+    }
+}

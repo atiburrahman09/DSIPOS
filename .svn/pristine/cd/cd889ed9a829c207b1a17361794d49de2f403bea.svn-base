@@ -1,0 +1,141 @@
+﻿using System;
+using System.Data;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace Lumex.Project.DAL
+{
+    public class CashOutDAL
+    {
+        public DataTable SaveCashOutEntry(CashOutBLL cashOut, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@SalesCenterId", cashOut.SalesCenterId.Trim());
+                db.AddParameters("@EntryDate", cashOut.EntryDate.Trim());
+                db.AddParameters("@Amount", cashOut.Amount.Trim());
+                db.AddParameters("@Narration", cashOut.Narration.Trim());
+                db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+                db.AddParameters("@AccountId", cashOut.AccountHEad.Trim());
+
+                DataTable dt = db.ExecuteDataTable("INSERT_TODAYS_CASH_OUT_ENTRY", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public DataTable GetTodaysCashOutEntryList(CashOutBLL cashOut, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@SalesCenterId", cashOut.SalesCenterId.Trim());
+                db.AddParameters("@EntryDate", cashOut.EntryDate.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_TODAYS_CASH_OUT_ENTRY_LIST", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void DeleteTodaysCashOutEntryBySerial(string serial, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@Serial", serial);
+                db.AddParameters("@DeletedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@DeletedFrom", LumexLibraryManager.GetTerminal());
+
+                DataTable dt = db.ExecuteDataTable("DELETE_TODAYS_CASH_OUT_ENTRY_BY_SERIAL", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void UpdateTodaysCashOutEntryBySerial(CashOutBLL cashOut, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@Serial", cashOut.Serial.Trim());
+                db.AddParameters("@AccountId", cashOut.AccountHEad);
+                db.AddParameters("@EntryDate", cashOut.EntryDate.Trim());
+                db.AddParameters("@Amount", cashOut.Amount.Trim());
+                db.AddParameters("@Narration", cashOut.Narration.Trim());
+                db.AddParameters("@ModifiedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@ModifiedFrom", LumexLibraryManager.GetTerminal());
+
+                db.ExecuteNonQuery("UPDATE_CASH_OUT_ENTRY_BY_SERIAL", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void ApproveTodaysCashOutEntryBySerial(string entryDate, string salesCenterId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@SalesCenterId", salesCenterId.Trim());
+                db.AddParameters("@EntryDate", entryDate);
+                db.AddParameters("@ApprovedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@ApprovedFrom", LumexLibraryManager.GetTerminal());
+
+                DataTable dt = db.ExecuteDataTable("APPROVE_TODAYS_CASH_OUT_BY_DATE", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        internal void ApproveTodaysCashOutBySerial(CashOutBLL cashOutBLL, System.Collections.Generic.List<CashOutBLL> cashOuts, LumexDBPlayer db)
+        {
+            try
+            {
+                for (int i = 0; i < cashOuts.Count; i++)
+                {
+                    db.ClearParameters();
+                    db.AddParameters("@Serial", cashOutBLL.Serial);
+                    db.AddParameters("@ApprovedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                    db.AddParameters("@ApprovedFrom", LumexLibraryManager.GetTerminal());
+
+                    DataTable dt = db.ExecuteDataTable("APPROVE_TODAYS_CASH_OUT_BY_SERIAL", true);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        internal DataTable GetTodaysCashOutEntryListBySerial(LumexDBPlayer db)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                db.AddParameters("@Serial", LumexSessionManager.Get("CashOutSerialForUpdate").ToString());
+                //db.AddParameters("@ApprovedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                //db.AddParameters("@ApprovedFrom", LumexLibraryManager.GetTerminal());
+
+                dt = db.ExecuteDataTable("GET_TODAYS_CASH_OUT_ENTRY_BY_SERIAL", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return dt;
+        }
+    }
+}

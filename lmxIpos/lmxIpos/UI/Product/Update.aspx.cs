@@ -1,0 +1,364 @@
+﻿using System;
+using System.Data;
+using System.Web.UI;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+using System.Web.UI.WebControls;
+
+namespace lmxIpos.UI.Product
+{
+    public partial class Update : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+                    LoadProductGroups();
+                    LoadVendors();
+                    LoadSalesCenter();
+                    LoadWarehouses();
+
+                    idLabel.Text = productIdForUpdateHiddenField.Value = LumexSessionManager.Get("ProductIdForUpdate").ToString().Trim();
+                    GetProductById(productIdForUpdateHiddenField.Value.Trim());
+
+                    barcodeTextBox.Focus();
+                }
+            }
+            catch (Exception ex)
+            {
+                updateButton.Enabled = false;
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void LoadVendors()
+        {
+            VendorBLL vendor = new VendorBLL();
+
+            try
+            {
+                DataTable dt = vendor.GetVendorListByActivationStatus("True");
+
+                vendorDropDownList.DataSource = dt;
+                vendorDropDownList.DataValueField = "VendorId";
+                vendorDropDownList.DataTextField = "VendorName";
+                vendorDropDownList.DataBind();
+                vendorDropDownList.Items.Insert(0, "");
+                vendorDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        protected void LoadProductGroups()
+        {
+            ProductGroupBLL productGroup = new ProductGroupBLL();
+
+            try
+            {
+                DataTable dt = productGroup.GetActiveProductGroupList();
+
+                productGroupDropDownList.DataSource = dt;
+                productGroupDropDownList.DataValueField = "ProductGroupId";
+                productGroupDropDownList.DataTextField = "ProductGroupName";
+                productGroupDropDownList.DataBind();
+                productGroupDropDownList.Items.Insert(0, "");
+                productGroupDropDownList.SelectedIndex = 0;
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Product Group Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                productGroup = null;
+            }
+        }
+        protected void LoadWarehouses()
+        {
+            WarehouseBLL warehouse = new WarehouseBLL();
+
+            try
+            {
+                DataTable dt = warehouse.GetActiveWarehouseListByUser();
+
+                warehouseDropDownList.DataSource = dt;
+                warehouseDropDownList.DataValueField = "WarehouseId";
+                warehouseDropDownList.DataTextField = "WarehouseName";
+                warehouseDropDownList.DataBind();
+                warehouseDropDownList.Items.Insert(0, "For all Warehouse");
+                warehouseDropDownList.SelectedIndex = 0;
+                warehouseDropDownList.Items[0].Value = "A";
+                warehouseDropDownList.SelectedValue = LumexSessionManager.Get("UserWareHouseId").ToString();
+
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                warehouse = null;
+            }
+        }
+        protected void LoadSalesCenter()
+        {
+            SalesCenterBLL warehouse = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = warehouse.GetActiveSalesCenterListByUser();
+
+                salescenterDropDownList.DataSource = dt;
+                salescenterDropDownList.DataValueField = "SalesCenterId";
+                salescenterDropDownList.DataTextField = "SalesCenterName";
+                salescenterDropDownList.DataBind();
+                salescenterDropDownList.Items.Insert(0, "For all Sales Center");
+                salescenterDropDownList.SelectedIndex = 0;
+                salescenterDropDownList.Items[0].Value = "A";
+                salescenterDropDownList.SelectedValue = LumexSessionManager.Get("UserSalesCenterId").ToString();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                warehouse = null;
+            }
+        }
+
+        protected void GetProductById(string productId)
+        {
+            ProductBLL product = new ProductBLL();
+
+            try
+            {
+                DataTable dt = product.GetProductById(productId);
+
+                if (dt.Rows.Count > 0)
+                {
+                    barcodeForUpdateHiddenField.Value = barcodeTextBox.Text = dt.Rows[0]["Barcode"].ToString();
+                    productNameForUpdateHiddenField.Value = dt.Rows[0]["ProductName"].ToString();
+                    productNameOnlyTextBox.Text = dt.Rows[0]["ProductNameOnly"].ToString();
+                    productGroupDropDownList.SelectedValue = dt.Rows[0]["ProductGroupId"].ToString();
+                    productVolumeTextBox.Text = dt.Rows[0]["ProductVolume"].ToString();
+                    // volumeQuantityTextBox.Text = dt.Rows[0]["VolumeQuantity"].ToString();
+                    unitTextBox.Text = dt.Rows[0]["Unit"].ToString();
+                    vendorDropDownList.SelectedValue = dt.Rows[0]["VendorId"].ToString();
+                    txtbxNarretion.Text = dt.Rows[0]["Additoninfo"].ToString();
+                    txtbxDescription.Text = dt.Rows[0]["ProductDescription"].ToString();
+
+                    ListItem listItem = new ListItem();
+                    listItem = warehouseDropDownList.Items.FindByValue(dt.Rows[0]["WareHouse"].ToString());
+
+                    if (listItem != null)
+                    {
+                        warehouseDropDownList.SelectedValue = dt.Rows[0]["WareHouse"].ToString();
+                    }
+                    else
+                    {
+                        warehouseDropDownList.Items.Insert(0, "Not Parmitted");
+                        warehouseDropDownList.Items[0].Value = dt.Rows[0]["WareHouse"].ToString();
+                        warehouseDropDownList.SelectedIndex = 0;
+                        warehouseDropDownList.Enabled = false;
+                        updateButton.Enabled = false;
+                    }
+                    listItem = salescenterDropDownList.Items.FindByValue(dt.Rows[0]["SalesCenter"].ToString());
+                    if (listItem != null)
+                    {
+                        salescenterDropDownList.SelectedValue = dt.Rows[0]["SalesCenter"].ToString();
+                    }
+                    else
+                    {
+                        salescenterDropDownList.Items.Insert(0, "Not Parmitted");
+                        salescenterDropDownList.Items[0].Value = dt.Rows[0]["SalesCenter"].ToString();
+                        salescenterDropDownList.SelectedIndex = 0;
+                        salescenterDropDownList.Enabled = false;
+                        updateButton.Enabled = false;
+                    }
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Product Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                product = null;
+            }
+        }
+
+        protected void barcode_TextChanged(object sender, EventArgs e)
+        {
+            ProductBLL product = new ProductBLL();
+            if (!product.CheckDuplicateProductByBarcode(barcodeTextBox.Text))
+            {
+                productNameOnlyTextBox.Focus();
+            }
+            else
+            {
+                if (barcodeTextBox.Text != "")
+                {
+                    msgbox.Visible = true;
+                    msgTitleLabel.Text = "Warning!!";
+                    msgDetailLabel.Text = "This Barcode already exist, try another one.";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+                barcodeTextBox.Focus();
+            }
+
+        }
+        protected void updateButton_Click(object sender, EventArgs e)
+        {
+            ProductBLL product = new ProductBLL();
+
+            try
+            {
+                if (productIdForUpdateHiddenField.Value.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Product not found to update.";
+                }
+                //else if (barcodeTextBox.Text == "")
+                //{
+                //    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Barcode Name field is required.";
+                //}
+                else if (productNameOnlyTextBox.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Product Name field is required.";
+                }
+                else if (productVolumeTextBox.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Product Volume field is required.";
+                }
+                //else if (volumeQuantityTextBox.Text == "")
+                //{
+                //    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Volume Quantity field is required.";
+                //}
+                else if (unitTextBox.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Unit field is required.";
+                }
+                else if (vendorDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Product Vendor field is required.";
+                }
+                else if (productGroupDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Product Group field is required.";
+                }
+                else
+                {
+                    product.ProductId = productIdForUpdateHiddenField.Value.Trim();
+                    product.ProductNameOnly = productNameOnlyTextBox.Text.Trim();
+                    product.Barcode = barcodeTextBox.Text.Trim();
+                    product.ProductGroupId = productGroupDropDownList.SelectedValue.Trim();
+                    product.ProductVolume = productVolumeTextBox.Text.Trim();
+                    product.VolumeQuantity = 1;//int.Parse(volumeQuantityTextBox.Text.Trim());
+                    product.Unit = unitTextBox.Text.Trim();
+                    product.VendorId = vendorDropDownList.SelectedValue;
+                    product.ProductName = product.ProductNameOnly.Trim() + " (" + product.ProductVolume.Trim() + ")";
+                    product.salescenter = salescenterDropDownList.SelectedValue;
+                    product.warehouse = warehouseDropDownList.SelectedValue;
+                    product.Narretion = txtbxNarretion.Text.Trim();
+                    product.Description = txtbxDescription.Text.Trim();
+
+                    string updateCondition = "";
+
+                    if (barcodeForUpdateHiddenField.Value != product.Barcode.Trim())
+                    {
+                        if (!product.CheckDuplicateProductByBarcode(product.Barcode.Trim()))
+                        {
+                            updateCondition += "Brc";
+                        }
+                        else
+                        {
+                            //string message1 = "This Barcode <span class='actionTopic'>already exist</span>, try another one.";
+                            //MyAlertBox("WarningAlert(\"" + "Data Duplicate" + "\", \"" + message1 + "\");");
+                            msgbox.Visible = true; msgTitleLabel.Text = "Warning !!!"; msgDetailLabel.Text = "This Barcode already exist, try another one.";
+                            msgbox.Attributes.Add("class", "alert alert-warning");
+                            return;
+                        }
+                    }
+
+                    if (productNameForUpdateHiddenField.Value != product.ProductName.Trim())
+                    {
+                        if (!product.CheckDuplicateProductByName(product.ProductName.Trim(), product.warehouse, product.salescenter))
+                        {
+                            updateCondition += "Prdn";
+                        }
+                        else
+                        {
+                            //string message2 = "This Product Name <span class='actionTopic'>already exist</span>, try another one.";
+                            //MyAlertBox("WarningAlert(\"" + "Data Duplicate" + "\", \"" + message2 + "\");");
+                            msgbox.Visible = true; msgTitleLabel.Text = "Warning !!!"; msgDetailLabel.Text = "This Product Name already exist, try another one.";
+                            msgbox.Attributes.Add("class", "alert alert-warning");
+                            
+                            return;
+                        }
+                    }
+
+                    product.UpdateProduct(updateCondition);
+                    //productNameForUpdateHiddenField.Value = "";
+                   // productIdForUpdateHiddenField.Value = "";
+                   // barcodeForUpdateHiddenField.Value = "";
+
+                //    string message = "Product <span class='actionTopic'>Updated</span> Successfully.";
+                //    MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/Product/List.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                    msgbox.Visible = true; msgTitleLabel.Text = "Process Succeed"; msgDetailLabel.Text = "Product Updated Successfully.";
+                    msgbox.Attributes.Add("class", "alert alert-success");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                product = null;
+            }
+        }
+    }
+}

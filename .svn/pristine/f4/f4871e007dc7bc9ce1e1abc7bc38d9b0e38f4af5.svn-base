@@ -1,0 +1,250 @@
+﻿using System;
+using System.Data;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace Lumex.Project.DAL
+{
+    public class ReceivePaymentDAL
+    {
+        public DataTable GetVendorPayments(string vendorId, string recordId, string status, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorId", vendorId.Trim());
+                db.AddParameters("@RecordId", recordId.Trim());
+                db.AddParameters("@Status", status.Trim());
+
+                DataTable dt = db.ExecuteDataTable("GET_VENDOR_PAYMENTS", true);
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetVendorPayableList(string vendorId, string accountOn, string whscId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorId", vendorId.Trim());
+                //db.AddParameters("@AccountOn", accountOn.Trim());
+                // db.AddParameters("@WHSCId", whscId.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_VENDOR_PAYABLE_LIST_BY_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetCustomerReceivableList(string customerId,string centerId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@CustomerId", customerId.Trim());
+                db.AddParameters("@SalesCenterId",centerId);
+                DataTable dt = db.ExecuteDataTable("GET_CUSTOMER_RECEIVABLE_LIST_BY_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable SaveVendorPaymentBySC(ReceivePaymentBLL receivePayment, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@PurchaseRecordId", receivePayment.PurchaseRecordId.Trim());
+                db.AddParameters("@VendorId", receivePayment.VendorId.Trim());
+                db.AddParameters("@SalesCenterId", receivePayment.SalesCenterId.Trim());
+                db.AddParameters("@Amount", receivePayment.Amount.Trim());
+                db.AddParameters("@CurrentPayable", receivePayment.CurrentPayable.Trim());
+                db.AddParameters("@ApprovedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@ApprovedFrom", LumexLibraryManager.GetTerminal());
+
+                DataTable dt = db.ExecuteDataTable("INSERT_VENDOR_PAYMENT_PURCHASE_WISE", true);
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable SaveVendorPayment(ReceivePaymentBLL receivePayment, string accountOn, string whscId, DataTable adata, LumexDBPlayer db)
+        {
+            try
+            {
+                decimal PaidAmount = Convert.ToDecimal(receivePayment.Amount.Trim());
+                DataTable dt = new DataTable();
+
+                if (adata.Rows.Count > 0)
+                {
+                    for (int i = 0; i < adata.Rows.Count; i++)
+                    {
+                        db.ClearParameters();
+                        if (PaidAmount > 0 && Convert.ToDecimal(adata.Rows[i]["Due"].ToString()) > 0)
+                        {
+                            db.AddParameters("@RecordId", adata.Rows[i]["PurchaseRecordId"].ToString());
+
+                            if (Convert.ToDecimal(adata.Rows[i]["Due"].ToString()) >= PaidAmount)
+                            {
+                                db.AddParameters("@Amount", PaidAmount);
+                            }
+                            else
+                            {
+                                PaidAmount = PaidAmount - Convert.ToDecimal(adata.Rows[i]["Due"].ToString());
+                                db.AddParameters("@Amount", Convert.ToDecimal(adata.Rows[i]["Due"].ToString()));
+                            }
+                            db.AddParameters("@AccountId", receivePayment.AccountId.Trim());
+                            db.AddParameters("@VendorId", receivePayment.VendorId.Trim());
+                            db.AddParameters("@SalesCenterId", whscId);
+                            db.AddParameters("@CashCheque", receivePayment.CashCheque.Trim());
+                            //db.AddParameters("@Amount", receivePayment.Amount.Trim());
+                            db.AddParameters("@CurrentPayable", receivePayment.CurrentPayable.Trim());
+                            db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                            db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+                            db.AddParameters("@Bank", receivePayment.Bank.Trim());
+                            db.AddParameters("@BankBrach", receivePayment.BankBrach.Trim());
+                            db.AddParameters("@ChequeNo", receivePayment.ChequeNo.Trim());
+                            db.AddParameters("@ChequeDate", LumexLibraryManager.ParseAppDate(receivePayment.ChequeDate));
+
+                            dt = db.ExecuteDataTable("[INSERT_VENDOR_PAYMENT_BY_RECORD_ID]", true);
+                        }
+                        else
+                        {
+                            //  break;
+                        }
+                    }
+                }
+                else
+                {
+
+
+                    db.AddParameters("@AccountId", receivePayment.AccountId.Trim());
+                    //     db.AddParameters("@WHSCId", whscId.Trim());
+                    db.AddParameters("@VendorId", receivePayment.VendorId.Trim());
+                    db.AddParameters("@CashCheque", receivePayment.CashCheque.Trim());
+                    db.AddParameters("@Amount", receivePayment.Amount.Trim());
+                    db.AddParameters("@CurrentPayable", receivePayment.CurrentPayable.Trim());
+                    db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                    db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+                    db.AddParameters("@Bank", receivePayment.Bank.Trim());
+                    db.AddParameters("@BankBrach", receivePayment.BankBrach.Trim());
+                    db.AddParameters("@ChequeNo", receivePayment.ChequeNo.Trim());
+                    db.AddParameters("@ChequeDate", LumexLibraryManager.ParseAppDate(receivePayment.ChequeDate));
+                    db.AddParameters("@WHSCId", whscId);
+
+
+                    dt = db.ExecuteDataTable("[INSERT_VENDOR_PAYMENT]", true);
+                }
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable SaveCustomerPayment(ReceivePaymentBLL receivePayment, string accountOn, DataTable adata, LumexDBPlayer db)
+        {
+            try
+            {
+                decimal ReceiveAmount = Convert.ToDecimal(receivePayment.Amount.Trim());
+                DataTable dt = new DataTable();
+
+                if (adata.Rows.Count > 0)
+                {
+                    for (int i = 0; i < adata.Rows.Count; i++)
+                    {
+                        db.ClearParameters();
+                        if (ReceiveAmount > 0 && Convert.ToDecimal(adata.Rows[i]["Due"].ToString()) > 0)
+                        {
+                            db.AddParameters("@RecordId", adata.Rows[i]["RecordId"].ToString());
+
+                            if (Convert.ToDecimal(adata.Rows[i]["Due"].ToString()) >= ReceiveAmount)
+                            {
+                                db.AddParameters("@Amount", ReceiveAmount);
+                            }
+                            else
+                            {
+                                ReceiveAmount = ReceiveAmount - Convert.ToDecimal(adata.Rows[i]["Due"].ToString());
+                                db.AddParameters("@Amount", Convert.ToDecimal(adata.Rows[i]["Due"].ToString()));
+                            }
+                            db.AddParameters("@AccountId", receivePayment.AccountId.Trim());
+                            db.AddParameters("@CustomerId", receivePayment.CustomerId.Trim());
+                            db.AddParameters("@SalesCenterId", (string)LumexSessionManager.Get("UserSalesCenterId"));
+                            db.AddParameters("@CashCheque", receivePayment.CashCheque.Trim());
+                            //db.AddParameters("@Amount", receivePayment.Amount.Trim());
+                            db.AddParameters("@CurrentReceivable", receivePayment.CurrentReceivable.Trim());
+                            db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                            db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+                            db.AddParameters("@Bank", receivePayment.Bank.Trim());
+                            db.AddParameters("@BankBrach", receivePayment.BankBrach.Trim());
+                            db.AddParameters("@ChequeNo", receivePayment.ChequeNo.Trim());
+                            db.AddParameters("@ChequeDate", LumexLibraryManager.ParseAppDate(receivePayment.ChequeDate));
+
+                            dt = db.ExecuteDataTable("INSERT_CUSTOMER_PAYMENT_BY_RECORD_ID", true);
+                        }
+                        else
+                        {
+                            //  break;
+                        }
+                    }
+                }
+                else
+                {
+                    db.ClearParameters();
+                    db.AddParameters("@SalesCenterId", accountOn);
+                    db.AddParameters("@AccountId", receivePayment.AccountId.Trim());
+                    db.AddParameters("@CustomerId", receivePayment.CustomerId.Trim());
+                    //  db.AddParameters("@SalesCenterId", (string)LumexSessionManager.Get("UserSalesCenterId"));
+                    db.AddParameters("@CashCheque", receivePayment.CashCheque.Trim());
+                    db.AddParameters("@Amount", receivePayment.Amount.Trim());
+                    db.AddParameters("@CurrentReceivable", receivePayment.CurrentReceivable.Trim());
+                    db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                    db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+                    db.AddParameters("@Bank", receivePayment.Bank.Trim());
+                    db.AddParameters("@BankBrach", receivePayment.BankBrach.Trim());
+                    db.AddParameters("@ChequeNo", receivePayment.ChequeNo.Trim());
+                    db.AddParameters("@ChequeDate", LumexLibraryManager.ParseAppDate(receivePayment.ChequeDate));
+
+                    dt = db.ExecuteDataTable("INSERT_CUSTOMER_PAYMENT", true);
+                }
+
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        internal DataTable GetCustomerTotalReceivable(string Cid,string centerId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@CustomerId", Cid.Trim());
+                db.AddParameters("@SalesCenterId",centerId );
+                DataTable dt = db.ExecuteDataTable("GET_CUSTOMER_TOTAL_RECEIVABLE_BY_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+}

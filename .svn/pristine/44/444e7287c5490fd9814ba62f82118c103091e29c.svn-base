@@ -1,0 +1,300 @@
+﻿using System;
+using System.Data;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.TodaysCashOut
+{
+    public partial class TodaysCashOutList : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+                    if (drpdwnAccountOn.SelectedIndex == 0)
+                    {
+                        LoadSalesCenters();
+                    }
+
+                    //LoadTransactionBranchesByUser();
+                    entryDateTextBox.Text = LumexLibraryManager.GetAppDateView(DateTime.Today.ToString());
+                    entryDateTextBox.Focus();
+                }
+
+                if (cashOutListGridView.Rows.Count > 0)
+                {
+                    cashOutListGridView.UseAccessibleHeader = true;
+                    cashOutListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                drpdwnSalesCenterOrWarehouse.DataSource = dt;
+                drpdwnSalesCenterOrWarehouse.DataValueField = "SalesCenterId";
+                drpdwnSalesCenterOrWarehouse.DataTextField = "SalesCenterName";
+                drpdwnSalesCenterOrWarehouse.DataBind();
+                //drpdwnSalesCenterOrWarehouse.Items.Insert(0, "");
+                //drpdwnSalesCenterOrWarehouse.SelectedIndex = 0;
+
+                drpdwnSalesCenterOrWarehouse.SelectedValue = LumexSessionManager.Get("UserSalesCenterId").ToString();
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Joining Sales Center Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+
+        //protected void LoadTransactionBranchesByUser()
+        //{
+        //    UserBLL user = new UserBLL();
+
+        //    try
+        //    {
+        //        DataTable dt = user.GetTransactionBranchesByUser((string)LumexSessionManager.Get("ActiveUserId"));
+
+        //        transactionBranchDropDownList.DataSource = dt;
+        //        transactionBranchDropDownList.DataValueField = "TransactionBranchId";
+        //        transactionBranchDropDownList.DataTextField = "TransactionBranchName";
+        //        transactionBranchDropDownList.DataBind();
+        //        transactionBranchDropDownList.Items.Insert(0, "");
+        //        transactionBranchDropDownList.SelectedIndex = 0;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string message = ex.Message;
+        //        if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+        //        MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+        //    }
+        //    finally
+        //    {
+        //        user = null;
+        //    }
+        //}
+
+        protected void GetTodaysCashOutEntryList()
+        {
+            CashOutBLL cashOut = new CashOutBLL();
+
+            try
+            {
+                cashOut.EntryDate = LumexLibraryManager.ParseAppDate(entryDateTextBox.Text.Trim());
+                cashOut.SalesCenterId = drpdwnSalesCenterOrWarehouse.SelectedValue.Trim();
+                DataTable dt = cashOut.GetTodaysCashOutEntryList();
+                cashOutListGridView.DataSource = dt;
+                cashOutListGridView.DataBind();
+
+                bool disableApproveButton = true;
+
+                for (int i = 0; i < cashOutListGridView.Rows.Count; i++)
+                {
+                    if (cashOutListGridView.Rows[i].Cells[5].Text.Trim() != "Pending")
+                    {
+                        LinkButton editLinkButton = (LinkButton)cashOutListGridView.Rows[i].FindControl("editLinkButton");
+                        editLinkButton.Visible = false;
+
+                        LinkButton deleteLinkButton = (LinkButton)cashOutListGridView.Rows[i].FindControl("deleteLinkButton");
+                        deleteLinkButton.Visible = false;
+                    }
+                }
+
+                for (int i = 0; i < cashOutListGridView.Rows.Count; i++)
+                {
+                    if (cashOutListGridView.Rows[i].Cells[5].Text.Trim() == "Pending")
+                    {
+                        disableApproveButton = false;
+                        break;
+                    }
+                }
+
+                if (disableApproveButton)
+                {
+                    approveButton.Enabled = false;
+                }
+                else
+                {
+                    approveButton.Enabled = true;
+                }
+
+                if (cashOutListGridView.Rows.Count > 0)
+                {
+                    cashOutListGridView.UseAccessibleHeader = true;
+                    cashOutListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Todays Cash Out Entry List Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        protected void editLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                LinkButton lnkBtn = (LinkButton)sender;
+                GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+
+                LumexSessionManager.Add("CashOutSerialForUpdate", cashOutListGridView.Rows[row.RowIndex].Cells[0].Text.ToString());
+                LumexSessionManager.Add("CashOutEntryDateForUpdate", cashOutListGridView.Rows[row.RowIndex].Cells[2].Text.ToString());
+                LumexSessionManager.Add("CashOutAmountForUpdate", cashOutListGridView.Rows[row.RowIndex].Cells[3].Text.ToString());
+                LumexSessionManager.Add("CashOutNarrationForUpdate", cashOutListGridView.Rows[row.RowIndex].Cells[4].Text.ToString());
+
+                Response.Redirect("~/UI/TodaysCashOut/UpdateCashOutEntry.aspx", false);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void deleteLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                LinkButton lnkBtn = (LinkButton)sender;
+                GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+
+                CashOutBLL cashOut = new CashOutBLL();
+                cashOut.DeleteTodaysCashOutEntryBySerial(cashOutListGridView.Rows[row.RowIndex].Cells[0].Text.ToString());
+
+                GetTodaysCashOutEntryList();
+                string message = "Cash Out Entry <span class='actionTopic'>Deleted</span> Successfully.";
+                MyAlertBox("SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", \"\");");
+
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void approveButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CashOutBLL cashOut = new CashOutBLL();
+                cashOut.ApproveTodaysCashOutEntryBySerial(LumexLibraryManager.ParseAppDate(entryDateTextBox.Text.Trim()), drpdwnSalesCenterOrWarehouse.SelectedValue.Trim());
+
+                GetTodaysCashOutEntryList();
+                string message = "Todays Cash Out Entries <span class='actionTopic'>Approved</span> Successfully.";
+                MyAlertBox("SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", \"\");");
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void entryListButton_Click(object sender, EventArgs e)
+        {
+            GetTodaysCashOutEntryList();
+        }
+
+        protected void drpdwnAccountOn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                cashOutListGridView.DataSource = null;
+                cashOutListGridView.DataBind();
+
+                if (drpdwnAccountOn.SelectedIndex == 0)
+                {
+                    drpdwnSalesCenterOrWarehouse.Items.Clear();
+                    LoadSalesCenters();
+                    titleSalesCenterOrWarehouse.Text = "Sales Center";
+                }
+                else if (drpdwnAccountOn.SelectedIndex == 1)
+                {
+                    drpdwnSalesCenterOrWarehouse.Items.Clear();
+                    LoadWarehouse();
+                    titleSalesCenterOrWarehouse.Text = "Warehouse";
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        private void LoadWarehouse()
+        {
+            WarehouseBLL warehouse = new WarehouseBLL();
+
+            try
+            {
+                DataTable dt = warehouse.GetActiveWarehouseListByUser();
+
+                drpdwnSalesCenterOrWarehouse.DataSource = dt;
+                drpdwnSalesCenterOrWarehouse.DataTextField = "WarehouseName";
+                drpdwnSalesCenterOrWarehouse.DataValueField = "WarehouseId";
+                drpdwnSalesCenterOrWarehouse.DataBind();
+                //drpdwnSalesCenterOrWarehouse.Items.Insert(0, "");
+                //drpdwnSalesCenterOrWarehouse.SelectedIndex = 0;
+
+                drpdwnSalesCenterOrWarehouse.SelectedValue = LumexSessionManager.Get("UserWareHouseId").ToString();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+    }
+}

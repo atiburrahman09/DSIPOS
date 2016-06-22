@@ -1,0 +1,544 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Tech;
+using Lumex.Project.BLL;
+using System.Data;
+using System.Web.Services;
+
+namespace lmxIpos
+{
+    public partial class App : System.Web.UI.MasterPage
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+
+                string ActiveUser = (string)LumexSessionManager.Get("ActiveUserId");
+
+                //  lblloginby.Text = ActiveUserName;
+
+                if (string.IsNullOrEmpty((string)LumexSessionManager.Get("ActiveUserId")))
+                {
+                    LumexSessionManager.RemoveAll();
+                    Response.Redirect("~/Login.aspx");
+                }
+                else
+                {
+                    lbluserName.Text = (string)LumexSessionManager.Get("ActiveUserName");
+                    lblUserDasignation.Text = (string)LumexSessionManager.Get("UserDasignation");
+
+
+                    PopulatSideberemenu();
+
+                }
+            }
+
+        }
+
+        List<AppMenuBLL> ParentLevelMenuItems = new List<AppMenuBLL>();
+        List<AppMenuBLL> ChildLevelMenuItems = new List<AppMenuBLL>();
+        DataTable usermenu;
+
+        private void PopulatSideberemenu()
+        {
+            usermenu = new DataTable();
+            string menufor = (string)LumexSessionManager.Get("ActiveMenuFor");
+            //if (menufor == "inv")
+            //{
+            //    usermenu = (DataTable)LumexSessionManager.Get("menuinv");
+            //}
+            //else if (menufor == "acc")
+            //{
+            //    usermenu = (DataTable)LumexSessionManager.Get("menuacc");
+            //}
+            //else if (menufor == "stn")
+            //{
+            //    usermenu = (DataTable)LumexSessionManager.Get("menustn");
+            //}
+            //if (usermenu != null)
+            //{
+            //    LumexSessionManager.Add("isMenu", "Y");
+            //}
+            //else
+            //{
+            //    LumexSessionManager.Add("isMenu", "N");
+            //}
+            if (LumexSessionManager.Get("ActiveUserId").ToString() == "Developer")
+            {
+                PopulateUserMenuForDeveloper(menufor);
+            }
+            else
+            {
+                PopulateUserMenu(menufor);
+            }
+
+        }
+
+        private void PopulateUserMenuForDeveloper(string menufor)
+        {
+            AppMenuBLL appMenu = new AppMenuBLL();
+            string appmenu = "";
+            try
+            {
+                if ((string)LumexSessionManager.Get("isMenu") == "N")
+                {
+                    if (menufor == "inv")
+                    {
+                        appmenu = "Inventory";
+                    }
+                    else if (menufor == "acc")
+                    {
+                        appmenu = "Accounts";
+                    }
+                    else if (menufor == "stn")
+                    {
+                        appmenu = "Settings";
+                    }
+
+                    ParentLevelMenuItems.Clear();
+                    usermenu = new DataTable();
+                    DataTable dtUserMenu = appMenu.GetAllMenuData(appmenu, "Sideber");
+                    usermenu = dtUserMenu;
+                    if (dtUserMenu.Rows.Count > 0)
+                    {
+                        //    ainMenu.Items.Clear();
+                        //      AddTopMenuItems(dtUserMenu);
+                        getParentMenulist(dtUserMenu);
+                        ParentLevelMenuRepeater.DataSource = ParentLevelMenuItems;
+                        ParentLevelMenuRepeater.DataBind();
+                    }
+
+                    if (menufor == "inv")
+                    {
+                        LumexSessionManager.Add("menuinv", dtUserMenu);
+                    }
+                    else if (menufor == "acc")
+                    {
+                        LumexSessionManager.Add("menuacc", dtUserMenu);
+                    }
+                    else if (menufor == "stn")
+                    {
+                        LumexSessionManager.Add("menustn", dtUserMenu);
+                    }
+                    // LumexSessionManager.Add("IsMenu", "Y");
+                }
+                else if ((string)LumexSessionManager.Get("isMenu") == "Y")
+                {
+                    // usermenu = new DataTable();
+                    //  usermenu = (DataTable)LumexSessionManager.Get("Menudata");
+                    getParentMenulist(usermenu);
+                    ParentLevelMenuRepeater.DataSource = ParentLevelMenuItems;
+                    ParentLevelMenuRepeater.DataBind();
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            finally
+            {
+                appMenu = null;
+            }
+        }
+
+        protected bool CheckIstheUrlPermitted(string url)
+        {
+            bool status = false;
+            try
+            {
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return status;
+
+        }
+        private void PopulateUserMenu(string menufor)
+        {
+            string path = HttpContext.Current.Request.Url.AbsolutePath;
+            AppMenuBLL appMenu = new AppMenuBLL();
+            string appmenufor = "";
+            try
+            {
+                if ((string)LumexSessionManager.Get("isMenu") == "N")
+                {
+                    if (menufor == "inv")
+                    {
+                        appmenufor = "Inventory";
+                    }
+                    else if (menufor == "acc")
+                    {
+                        appmenufor = "Accounts";
+                    }
+                    else if (menufor == "stn")
+                    {
+                        appmenufor = "Settings";
+                    }
+                    DataTable dtUserMenu = appMenu.GetUserMenuData(LumexSessionManager.Get("ActiveUserId").ToString(), appmenufor, "Sideber");
+                    DataTable dtAllMenu = appMenu.GetAllMenusForMappingUserMenu(appmenufor, "Sideber");
+                    DataRow dr = null;
+
+                    if (path == "/Default.aspx")
+                    {
+                        path = "Done";
+                    }
+                    else
+                    {
+                        for (int i = 0; i < dtUserMenu.Rows.Count; i++)
+                        {
+                            if (path == dtUserMenu.Rows[i]["URL"].ToString())
+                            {
+                                path = "Done";
+                                break;
+                            }
+                        }
+                    }
+                    if (path != "Done")
+                    {
+                        // LumexSessionManager.RemoveAll();
+                        //Response.Redirect("~/Page404.aspx", false);
+                        Response.Redirect("~/Default.aspx", false);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < dtUserMenu.Rows.Count; i++)
+                        {
+                            if (dtUserMenu.Rows[i]["IsDisplay"].ToString() == "False")
+                            {
+                                dtUserMenu.Rows.RemoveAt(i);
+                                i--;
+                            }
+                        }
+
+                        for (int i = 0; i < dtUserMenu.Rows.Count; i++)
+                        {
+                            for (int j = 0; j < dtAllMenu.Rows.Count; j++)
+                            {
+                                if (dtUserMenu.Rows[i]["ParentMenuId"].ToString() == dtAllMenu.Rows[j]["MenuId"].ToString())
+                                {
+                                    dr = dtUserMenu.NewRow();
+
+                                    dr["MenuId"] = dtAllMenu.Rows[j]["MenuId"].ToString();
+                                    dr["MenuName"] = dtAllMenu.Rows[j]["MenuName"].ToString();
+                                    dr["ToolTipDescription"] = dtAllMenu.Rows[j]["ToolTipDescription"].ToString();
+                                    dr["ParentMenuId"] = dtAllMenu.Rows[j]["ParentMenuId"].ToString();
+                                    dr["URL"] = dtAllMenu.Rows[j]["URL"].ToString();
+                                    dr["MenuSorting"] = dtAllMenu.Rows[j]["MenuSorting"].ToString();
+                                    dr["DisplayName"] = dtAllMenu.Rows[j]["DisplayName"].ToString();
+                                    dr["ImageURL"] = dtAllMenu.Rows[j]["ImageURL"].ToString();
+                                    dr["MenuTarget"] = dtAllMenu.Rows[j]["MenuTarget"].ToString();
+                                    dr["IsDisplay"] = dtAllMenu.Rows[j]["IsDisplay"].ToString();
+
+                                    dtUserMenu.Rows.Add(dr);
+                                }
+                            }
+                        }
+
+                        ///////////////////////////////to convert column data type////////////////////////////////
+                        //DataTable dtCloned = dtUserMenu.Clone();
+                        //dtCloned.Columns["UserMenuSorting"].DataType = typeof(Int32);
+                        //foreach (DataRow row in dtUserMenu.Rows)
+                        //{
+                        //    dtCloned.ImportRow(row);
+                        //}
+
+                        dtUserMenu = dtUserMenu.DefaultView.ToTable(true, "MenuId", "MenuName", "ToolTipDescription", "ParentMenuId", "URL", "MenuSorting", "DisplayName", "MenuTarget", "ImageURL", "IsDisplay");
+                        dtUserMenu.DefaultView.Sort = "MenuSorting";
+                        dtUserMenu = dtUserMenu.DefaultView.ToTable();
+                        usermenu = dtUserMenu;
+                        ///////////////////////////////to sort by column(s)///////////////////////////////////////
+                        //if (dtUserMenu.Rows.Count > 0)
+                        //{
+                        //    DataView dv = dtUserMenu.DefaultView;
+                        //    dv.Sort = "UserMenuSorting";
+                        //    dtUserMenu = dv.ToTable();
+                        //}
+
+                        //   mainMenu.Items.Clear();
+                        getParentMenulist(dtUserMenu);
+                        ParentLevelMenuRepeater.DataSource = ParentLevelMenuItems;
+                        ParentLevelMenuRepeater.DataBind();
+                        //if (menufor == "inv")
+                        //{
+                        //    LumexSessionManager.Add("menuinv", dtUserMenu);
+                        //}
+                        //else if (menufor == "acc")
+                        //{
+                        //    LumexSessionManager.Add("menuacc", dtUserMenu);
+                        //}
+                        //else if (menufor == "stn")
+                        //{
+                        //    LumexSessionManager.Add("menustn", dtUserMenu);
+                        //}
+
+                    }
+                }
+                else if ((string)LumexSessionManager.Get("isMenu") == "Y")
+                {
+                    //usermenu = new DataTable();
+                    //usermenu = (DataTable)LumexSessionManager.Get("Menudata");
+                    if (path == "/Default.aspx")
+                    {
+                        path = "Done";
+                    }
+                    else
+                    {
+                        for (int i = 0; i < usermenu.Rows.Count; i++)
+                        {
+                            if (path == usermenu.Rows[i]["URL"].ToString())
+                            {
+                                path = "Done";
+                                break;
+                            }
+                        }
+                    }
+
+
+
+                    if (path != "Done")
+                    {
+                        LumexSessionManager.RemoveAll();
+                        Response.Redirect("~/Default.aspx", false);
+                    }
+                    getParentMenulist(usermenu);
+                    ParentLevelMenuRepeater.DataSource = ParentLevelMenuItems;
+                    ParentLevelMenuRepeater.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                //  msgboxApp.Visible = true; msgTitleLabelApp.Text = "Exception!!!"; msgDetailLabelApp.Text = ex.Message;
+            }
+            finally
+            {
+                appMenu = null;
+            }
+        }
+
+        private void getParentMenulist(DataTable menudata)
+        {
+            DataView view = new DataView(menudata);
+            view.RowFilter = "ParentMenuId=0";
+            foreach (DataRowView row in view)
+            {
+                AppMenuBLL newMenuItem = new AppMenuBLL();
+                newMenuItem.URL = row["URL"].ToString();
+                newMenuItem.DisplayName = row["DisplayName"].ToString();
+                newMenuItem.ImageUrl = row["ImageURL"].ToString();
+                newMenuItem.MenuId = row["MenuId"].ToString();
+
+                ParentLevelMenuItems.Add(newMenuItem);
+
+            }
+        }
+
+        private void AddTopMenuItems(DataTable menuData)
+        {
+            DataView view = new DataView(menuData);
+            view.RowFilter = "ParentMenuId=0";
+
+            foreach (DataRowView row in view)
+            {
+                MenuItem newMenuItem = new MenuItem(row["DisplayName"].ToString(), row["MenuId"].ToString());
+                newMenuItem.NavigateUrl = row["URL"].ToString();
+                newMenuItem.ToolTip = row["ToolTipDescription"].ToString();
+                //newMenuItem.SeparatorImageUrl = "~/Content/Images/home.png";
+                //newMenuItem.PopOutImageUrl = "~/Content/Images/home.png";
+                newMenuItem.Target = row["MenuTarget"].ToString();
+                newMenuItem.ImageUrl = row["ImageURL"].ToString();
+                //   mainMenu.Items.Add(newMenuItem);
+                // ParentLevelMenuItems.Add(newMenuItem);
+                //  AddChildMenuItems(menuData, newMenuItem);
+            }
+        }
+
+        private void AddChildMenuItems(DataTable menuData, MenuItem parentMenuItem)
+        {
+            DataView view = new DataView(menuData);
+            view.RowFilter = "ParentMenuId=" + parentMenuItem.Value;
+
+            foreach (DataRowView row in view)
+            {
+                MenuItem newMenuItem = new MenuItem(row["DisplayName"].ToString(), row["MenuId"].ToString());
+                newMenuItem.NavigateUrl = row["URL"].ToString();
+                newMenuItem.ToolTip = row["ToolTipDescription"].ToString();
+                //newMenuItem.SeparatorImageUrl = "~/Content/Images/home.png";
+                //newMenuItem.PopOutImageUrl = "~/Content/Images/home.png";
+                newMenuItem.Target = row["MenuTarget"].ToString();
+                newMenuItem.ImageUrl = row["ImageURL"].ToString();
+                parentMenuItem.ChildItems.Add(newMenuItem);
+                //   AddChildMenuItems(menuData, newMenuItem);
+            }
+        }
+
+        protected void unlockButton_Click(object sender, EventArgs e)
+        {
+            UserBLL user = new UserBLL();
+
+            try
+            {
+                // user.UserId = userIdLockTextBox.Text.Trim();
+                // user.Password = passwordLockTextBox.Text.Trim();
+
+                if (user.ValidateUser() && user.UserId == LumexSessionManager.Get("ActiveUserId").ToString())
+                {
+                    DataTable dt = user.GetUserById(user.UserId);
+
+                    if (dt.Rows[0]["IsActive"].ToString() == "True" && dt.Rows[0]["IsUserGroupActive"].ToString() == "True")
+                    {
+                        //        screenLock.Visible = false;
+                        //      main.Visible = true;
+
+                        if (Session["ScreenLockURL"] != null)
+                        {
+                            LumexSessionManager.Remove("ScreenLockURL");
+                        }
+
+                        if (Session["ScreenLock"] != null)
+                        {
+                            LumexSessionManager.Remove("ScreenLock");
+                        }
+                    }
+                    else
+                    {
+                        //  screenStatusLabel.Text = "User Access Denied!!!";
+                    }
+                }
+                else
+                {
+                    // screenStatusLabel.Text = "Invalid User or Password";
+                }
+            }
+            catch (Exception)
+            {
+                LumexSessionManager.RemoveAll();
+                Response.Redirect("~/Login.aspx", false);
+            }
+            finally
+            {
+                user = null;
+            }
+        }
+
+        protected void ParentLevelMenuRepeater_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.DataItem != null)
+            {
+                string Title = DataBinder.Eval(e.Item.DataItem, "DisplayName").ToString().Trim();
+                //  AppMenuBLL appbll = new AppMenuBLL();
+                string menuid = "";
+                foreach (AppMenuBLL app in ParentLevelMenuItems)
+                {
+                    if (app.DisplayName == Title)
+                    {
+                        menuid = app.MenuId;
+                    }
+
+                }
+
+                ChildLevelMenuItems.Clear();
+                GetChildMenuItems(menuid);
+                Repeater FourthLevelMenuRepeater = (Repeater)e.Item.FindControl("ChildLevelMenuRepeater");
+                FourthLevelMenuRepeater.DataSource = ChildLevelMenuItems;
+                FourthLevelMenuRepeater.DataBind();
+            }
+        }
+
+        private void GetChildMenuItems(string Title)
+        {
+            ChildLevelMenuItems.Clear();
+            DataView view = new DataView(usermenu);
+            view.RowFilter = "ParentMenuId=" + Title;
+
+            foreach (DataRowView row in view)
+            {
+                AppMenuBLL newMenuItem = new AppMenuBLL();
+                newMenuItem.URL = row["URL"].ToString();
+                newMenuItem.DisplayName = row["DisplayName"].ToString();
+                newMenuItem.ImageUrl = row["ImageURL"].ToString();
+
+                ChildLevelMenuItems.Add(newMenuItem);
+            }
+        }
+
+        protected void lnlbtnInventory_Click(object sender, EventArgs e)
+        {
+            LumexSessionManager.Add("ActiveMenuFor", "inv");
+            //usermenu = new DataTable();
+            //usermenu = (DataTable)LumexSessionManager.Get("menuinv");
+            //if (usermenu.Rows.Count > 0)
+            //{
+            //    LumexSessionManager.Add("isMenu", "Y");
+            //}
+            //else
+            //{
+            //    LumexSessionManager.Add("isMenu", "N");
+            //}
+            PopulatSideberemenu();
+
+            LinkButton btn = (LinkButton)sender;
+            btn.Attributes.Add("class", "on");
+            lnlbtnAccounts.Attributes.Remove("class");
+            lnlbtnSettings.Attributes.Remove("class");
+        }
+
+        protected void lnlbtnAccounts_Click(object sender, EventArgs e)
+        {
+            LumexSessionManager.Add("ActiveMenuFor", "acc");
+            //usermenu = new DataTable();
+            //usermenu = (DataTable)LumexSessionManager.Get("menuacc");
+            //if (usermenu == null)
+            //{
+            //    LumexSessionManager.Add("isMenu", "N");
+            //}
+            //else
+            //{
+            //    LumexSessionManager.Add("isMenu", "Y");
+            //}
+            PopulatSideberemenu();
+
+            LinkButton btn = (LinkButton)sender;
+            btn.Attributes.Add("class", "on");
+
+            lnlbtnInventory.Attributes.Remove("class");
+            lnlbtnSettings.Attributes.Remove("class");
+        }
+        protected void lnlbtnSettings_Click(object sender, EventArgs e)
+        {
+            LumexSessionManager.Add("ActiveMenuFor", "stn");
+            //usermenu = new DataTable();
+            //usermenu = (DataTable)LumexSessionManager.Get("menuacc");
+            //if (usermenu == null)
+            //{
+            //    LumexSessionManager.Add("isMenu", "N");
+            //}
+            //else
+            //{
+            //    LumexSessionManager.Add("isMenu", "Y");
+            //}
+            PopulatSideberemenu();
+
+            LinkButton btn = (LinkButton)sender;
+            btn.Attributes.Add("class", "on");
+
+            lnlbtnInventory.Attributes.Remove("class");
+            lnlbtnAccounts.Attributes.Remove("class");
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+    }
+
+}

@@ -1,0 +1,145 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+
+namespace lmxIpos.UI.Library.Book
+{
+    public partial class languageentry : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                LoadLanguage();
+            }
+           
+        }
+
+        private void LoadLanguage()
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                BookBLL bookBll = new BookBLL();
+                dt = bookBll.GetLanguageList();
+                if (dt.Rows.Count > 0)
+                {
+                    languageListGridView.DataSource = dt;
+                    languageListGridView.DataBind();
+                    GridViewStyle();
+                }
+                else
+                {
+                    msgbox.Visible = true; 
+                    msgTitleLabel.Text = "Language List Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+        private void GridViewStyle()
+        {
+            if (languageListGridView.Rows.Count > 0)
+            {
+                languageListGridView.UseAccessibleHeader = true;
+                languageListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+        }
+        protected void saveButton_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+
+
+                BookBLL bookBll = new BookBLL();
+                DataTable dt = new DataTable();
+                bool status = false;
+
+                if (saveButton.Text == "Update")
+                {
+                    bookBll.LanguageName = languageNameTextBox.Text.Trim();
+                    bookBll.Country = countryTextBox.Text.Trim();
+                    bookBll.Serial = serialHiddenField.Value;
+                    status = bookBll.UpdateLanguageForBook();
+
+                    if (status)
+                    {
+                        string message = "Language <span class='actionTopic'>Updated</span> Successfully .";
+                        MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/Library/Book/languageentry.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                    }
+                    else
+                    {
+                        string message = "<span class='actionTopic'>Failed</span> to Update Language.";
+                        MyAlertBox("ErrorAlert(\"" + "Process Failed" + "\", \"" + message + "\");");
+                    }
+                }
+                else
+                {
+                    bookBll.LanguageName = languageNameTextBox.Text.Trim();
+                    bookBll.Country = countryTextBox.Text.Trim();
+                   
+                    status = bookBll.SaveLanguageForBook();
+
+                    if (status)
+                    {
+                        string message = "Language <span class='actionTopic'>Created</span> Successfully .";
+                        MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/Library/Book/languageentry.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                    }
+                    else
+                    {
+                        string message = "<span class='actionTopic'>Failed</span> to Create Language.";
+                        MyAlertBox("ErrorAlert(\"" + "Process Failed" + "\", \"" + message + "\");");
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void EditLinkButton_OnClick(object sender, EventArgs e)
+        {
+            BookBLL bookBll = new BookBLL();
+            DataTable dt = new DataTable();
+            LinkButton lnkBtn = (LinkButton)sender;
+            GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+
+            string LanguageSerial = languageListGridView.Rows[row.RowIndex].Cells[0].Text.ToString();
+            serialHiddenField.Value = LanguageSerial;
+            dt = bookBll.GetLanguageListBySerial(LanguageSerial);
+
+            if (dt.Rows.Count > 0)
+            {
+                languageNameTextBox.Text = dt.Rows[0]["LanguageName"].ToString();
+                countryTextBox.Text = dt.Rows[0]["Country"].ToString();
+                saveButton.Text = "Update";
+               
+            }
+            else
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Language List Data Not Found!!!"; msgDetailLabel.Text = "";
+                msgbox.Attributes.Add("class", "alert alert-warning");
+            }
+
+        }
+    }
+}

@@ -1,0 +1,134 @@
+﻿/* File Created: May 28, 2013 */
+
+/*---------------------------------Test Menu CSS--------------------------------*/
+
+#testAllMenu ul li:hover > ul
+{
+    display: block;
+}
+
+#testAllMenu ul
+{
+    /*background: rgb(236, 236, 236);     background: linear-gradient(to bottom, whitesmoke 0px, rgb(236, 236, 236) 100%);*/
+    padding: 0 20px;
+    border-radius: 0px;
+    list-style: none;
+    position: relative;
+    display: inline-table;
+}
+
+#testAllMenu ul:after
+{
+    content: "";
+    clear: both;
+    display: block;
+}
+
+#testAllMenu ul li
+{
+    float: left;
+}
+
+/*for highlighted*/
+#testAllMenu ul li:hover
+{
+    background: #4b545f; /*background: linear-gradient(center top , rgb(113, 162, 220) 0%, rgb(95, 105, 117) 40%) repeat scroll 0 0 transparent;*/
+}
+
+/*for highlighted*/
+/*#testAllMenu a.highlighted
+{
+    background-color: Red;
+}*/
+
+#testAllMenu ul li:hover a
+{
+    color: #fff;
+}
+
+#testAllMenu ul li a
+{
+    display: block;
+    padding: 5px 40px;
+    color: #757575;
+    text-decoration: none;
+}
+
+#testAllMenu ul li a:nth-child(1)
+{
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+#testAllMenu .dynamic
+{
+    background: url("/content/images/MenuBG.jpg") repeat scroll 0 0 transparent;
+}
+
+#testAllMenu ul ul
+{
+    background: none repeat scroll 0 0 rgb(10, 61, 122);
+    border-radius: 0px;
+    display: none;
+    padding: 0;
+    position: absolute;
+    top: 100%;
+    min-width: 120px;
+}
+
+#testAllMenu ul ul li
+{
+    float: none;
+    border-top: 0px solid #6b727c;
+    border-bottom: 1px solid #575f6a;
+    position: relative;
+}
+
+#testAllMenu ul ul li a
+{
+    padding: 3px 15px;
+    color: #fff;
+    color: rgb(108, 223, 255);
+}
+
+#testAllMenu ul ul li a:hover, #testAllMenu ul li a.highlighted
+{
+    background: #4b545f; /*background: linear-gradient(to bottom, rgb(0, 136, 204), rgb(0, 119, 179));*/ /*background: linear-gradient(to bottom, rgb(38, 38, 38), rgb(0, 119, 179)) repeat scroll 0 0 transparent;*/
+    background: linear-gradient(to bottom, rgb(38, 38, 38), rgb(10, 61, 122)) repeat scroll 0 0 transparent;
+    color: Yellow;
+}
+
+#testAllMenu ul ul ul
+{
+    position: absolute;
+    left: 100%;
+    top: 0;
+}
+
+#MenuContent
+{
+    background: linear-gradient(to bottom, whitesmoke 0px, rgb(236, 236, 236) 100%) repeat scroll 0 0 transparent !important;
+    box-shadow: 0 0 3px 1px rgb(136, 136, 136);
+    font-family: trebuchet ms;
+    min-height: 30px;
+}
+
+#allMenuList
+{
+    float: left;
+    width: 920px;
+}
+
+#allMenuImg
+{
+    float: right;
+    margin-right: 6px;
+    margin-top: 4px;
+}
+
+#refreshMenuImageButton, #allMenuImageButton
+{
+    height: 18px;
+}
+
+/*------------------------------------End Test Menu CSS--------------------------------*/

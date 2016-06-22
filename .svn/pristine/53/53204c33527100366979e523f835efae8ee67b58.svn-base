@@ -1,0 +1,85 @@
+﻿using System;
+using System.Web.UI;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.TodaysCashOut
+{
+    public partial class UpdateCashOutEntry : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+                    idLabel.Text = cashOutEntrySerialForUpdateHiddenField.Value = LumexSessionManager.Get("CashOutSerialForUpdate").ToString().Trim();
+                    amountTextBox.Text = LumexSessionManager.Get("CashOutAmountForUpdate").ToString().Trim();
+                    narrationTextBox.Text = LumexSessionManager.Get("CashOutNarrationForUpdate").ToString().Trim();
+                    entryDateTextBox.Text = DateTime.Parse(LumexSessionManager.Get("CashOutEntryDateForUpdate").ToString().Trim()).ToString(LumexLibraryManager.GetAppDateFormat());
+                    amountTextBox.Focus();
+                }
+            }
+            catch (Exception ex)
+            {
+                updateButton.Enabled = false;
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void updateButton_Click(object sender, EventArgs e)
+        {
+            CashOutBLL cashOut = new CashOutBLL();
+
+            try
+            {
+                if (cashOutEntrySerialForUpdateHiddenField.Value.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Cash Out Entry not found to update.";
+                }
+                else if (amountTextBox.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Amount field is required.";
+                }
+                else if (narrationTextBox.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Narration field is required.";
+                }
+                else
+                {
+                    cashOut.Serial = idLabel.Text.Trim();
+                    cashOut.Amount = amountTextBox.Text.Trim();
+                    cashOut.Narration = narrationTextBox.Text.Trim();
+                    cashOut.EntryDate = LumexLibraryManager.ParseAppDate(entryDateTextBox.Text.Trim());
+
+                    cashOut.UpdateTodaysCashOutEntryBySerial();
+
+                    cashOutEntrySerialForUpdateHiddenField.Value = "";
+
+                    string message = "Cash Out Entry <span class='actionTopic'>Updated</span> Successfully.";
+                    MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/TodaysCashOut/TodaysCashOutList.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+    }
+}

@@ -1,0 +1,39 @@
+﻿/* File Created: May 23, 2013 */
+
+#addButton, #removeButton, #addAllButton, #removeAllButton
+{
+    width: 100px;
+    margin: 1px 25px;
+}
+
+select[multiple], select[size]
+{
+    height: 200px;
+    width: 409px;
+    margin-bottom: 0px;
+}
+
+#listPane td:nth-child(2)
+{
+    vertical-align: middle;
+}
+
+#userInfoPane td
+{
+    height: 50px;
+}
+
+#userMenuSearch
+{
+    margin: 0 auto;
+}
+
+#userMenuSearch td
+{
+    height: 65px;
+}
+
+#hrList
+{
+    margin: 0;
+}

@@ -1,0 +1,143 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.Book
+{
+    public partial class List : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+
+                    GetBookList();
+                }
+
+
+
+                if (bookListGridView.Rows.Count > 0)
+                {
+                    bookListGridView.UseAccessibleHeader = true;
+                    bookListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void GetBookList()
+        {
+
+            try
+            {
+                DataTable dt = new DataTable();
+                BookBLL bookBll = new BookBLL();
+                dt = bookBll.GetBookList();
+                if (dt.Rows.Count > 0)
+                {
+                    bookListGridView.DataSource = dt;
+                    bookListGridView.DataBind();
+                    GridViewStyle();
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Book List Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+        private void GridViewStyle()
+        {
+            if (bookListGridView.Rows.Count > 0)
+            {
+                bookListGridView.UseAccessibleHeader = true;
+                bookListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+        }
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void EditLinkButton_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+                BookBLL bookBll = new BookBLL();
+                LinkButton lnkBtn = (LinkButton)sender;
+                GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+
+                string BookId = bookListGridView.Rows[row.RowIndex].Cells[1].Text.ToString();
+                LumexSessionManager.Add("BookIdForUpdate", BookId);
+                Response.Redirect("Update.aspx");
+
+            }
+            catch (Exception ex)
+            {
+                msgbox.Attributes.Add("Class", "alert alert-warning"); msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+        protected void viewLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                LinkButton lnkBtn = (LinkButton)sender;
+                GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+                string BookId = bookListGridView.Rows[row.RowIndex].Cells[1].Text.ToString();
+                //Label lblUserId = (Label)userListGridView.Rows[row.RowIndex].Cells[0].FindControl("lblUserId");
+                LumexSessionManager.Add("BookIdForView", BookId);
+                Response.Redirect("View.aspx");
+
+            }
+            catch (Exception ex)
+            {
+                msgbox.Attributes.Add("Class", "alert alert-warning"); msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void deleteLinkButton_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+                LinkButton lnkBtn = (LinkButton)sender;
+                GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+
+               BookBLL bookBll=new BookBLL();
+                bookBll.DeleteBook(bookListGridView.Rows[row.RowIndex].Cells[1].Text.ToString());
+
+                GetBookList();
+                string message = "Book <span class='actionTopic'>Deleted</span> Successfully.";
+                MyAlertBox("SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", \"\");");
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+    }
+}

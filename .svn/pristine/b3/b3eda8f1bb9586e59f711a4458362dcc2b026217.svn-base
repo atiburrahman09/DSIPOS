@@ -1,0 +1,115 @@
+﻿using System;
+using System.Data;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.ProductTransferOrder
+{
+    public partial class ReceiveTransferProduct : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            msgbox.Visible = false;
+
+            if (!IsPostBack)
+            {
+                LoadSalesCenters();
+            }
+
+            if (transferOrderListGridView.Rows.Count > 0)
+            {
+                transferOrderListGridView.UseAccessibleHeader = true;
+                transferOrderListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                salesCenterDropDownList.DataSource = dt;
+                salesCenterDropDownList.DataValueField = "SalesCenterId";
+                salesCenterDropDownList.DataTextField = "SalesCenterName";
+                salesCenterDropDownList.DataBind();
+                salesCenterDropDownList.Items.Insert(0, "");
+                salesCenterDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+
+        protected void viewLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                LinkButton lnkBtn = (LinkButton)sender;
+                GridViewRow row = (GridViewRow)lnkBtn.NamingContainer;
+
+                LumexSessionManager.Add("ProductTransferOrderIdForView", transferOrderListGridView.Rows[row.RowIndex].Cells[0].Text.ToString());
+                Response.Redirect("~/UI/ProductTransferOrder/TransferOrderDetail.aspx");
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void orderListButton_Click(object sender, EventArgs e)
+        {
+            ProductTransferOrderBLL productTransferOrder = new ProductTransferOrderBLL();
+
+            try
+            {
+                if (salesCenterDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Sales Center field is required.";
+                }
+                else
+                {
+                    string salesCenterId = salesCenterDropDownList.SelectedValue.Trim();
+
+                    DataTable dt = productTransferOrder.GetProductTransferReceivableListBySC(salesCenterId);
+
+                    transferOrderListGridView.DataSource = dt;
+                    transferOrderListGridView.DataBind();
+
+                    if (transferOrderListGridView.Rows.Count > 0)
+                    {
+                        transferOrderListGridView.UseAccessibleHeader = true;
+                        transferOrderListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                    }
+                    else
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Data Not Found!!!"; msgDetailLabel.Text = "";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                productTransferOrder = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+    }
+}

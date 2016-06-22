@@ -1,0 +1,22 @@
+﻿body {
+
+}
+
+/*html:lang(en) span{
+    font-size: 20px!important;
+}
+
+html:lang(ar) span{
+    font-size: 20px!important;
+}*/
+
+@import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
+.modifyfont span:lang(en) {
+    font-size: 20px!important;
+}
+
+.modifyfont span:lang(ar) {
+    font-size: 20px!important;
+    font-family: 'Alef Hebrew', sans-serif;
+}
+

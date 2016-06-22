@@ -1,0 +1,199 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+
+namespace lmxIpos.UI.Book
+{
+    public partial class Create : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!IsPostBack)
+                {
+                    LoadMainLanguage();
+                    LoadTranslateLanguage();
+                }
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
+
+        private void LoadTranslateLanguage()
+        {
+            BookBLL bookBll = new BookBLL();
+            DataTable dt = bookBll.GetLanguageList();
+            try
+            {
+                translatedLanguageDropDownList.DataSource = dt;
+                translatedLanguageDropDownList.DataValueField = "Serial";
+                translatedLanguageDropDownList.DataTextField = "LanguageName";
+                translatedLanguageDropDownList.DataBind();
+                translatedLanguageDropDownList.Items.Insert(0, "");
+                translatedLanguageDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                bookBll = null;
+            }
+        }
+
+        private void LoadMainLanguage()
+        {
+           BookBLL bookBll=new BookBLL();
+           DataTable dt = bookBll.GetLanguageList();
+
+            try
+            {
+                mainLanguageDropDownList.DataSource = dt;
+                mainLanguageDropDownList.DataValueField = "Serial";
+                mainLanguageDropDownList.DataTextField = "LanguageName";
+                mainLanguageDropDownList.DataBind();
+                mainLanguageDropDownList.Items.Insert(0, "");
+                mainLanguageDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                bookBll = null;
+            }
+        }
+
+      
+        protected void btnSave_OnClick(object sender, EventArgs e)
+        {
+            BookBLL aBook = new BookBLL();
+            bool status = false;
+            try
+            {
+                if (txtbxNo.Text == "")
+                {
+                    msgbox.Visible = true;
+                    msgTitleLabel.Text = "Validation!!!";
+                    msgDetailLabel.Text = "Book No field is required.";
+                }
+                else if (txtbxKitaberSerialNo.Text == "")
+                {
+                    msgbox.Visible = true;
+                    msgTitleLabel.Text = "Validation!!!";
+                    msgDetailLabel.Text = " Book Serial field is required.";
+                }
+                else if (txtbxKitaberMainName.Text == "")
+                {
+                    msgbox.Visible = true;
+                    msgTitleLabel.Text = "Validation!!!";
+                    msgDetailLabel.Text = "Book Main Name field is required.";
+                }
+                else
+                {
+
+
+                    aBook.No = txtbxNo.Text.Trim();
+                    aBook.KitaberSerialNo = txtbxKitaberSerialNo.Text.Trim();
+                    aBook.AlmariNo = txtbxAlmariNo.Text.Trim();
+                    aBook.TakNo = txtbxTakNo.Text.Trim();
+                    aBook.KolamNo = txtbxKolamNo.Text.Trim();
+                    aBook.KitabNo = txtbxKitabNo.Text.Trim();
+                    aBook.CopyNo = txtbxCopyNumber.Text.Trim();
+                    aBook.TotalVolumeNo = txtbxTotalVolume.Text.Trim();
+                    aBook.VolumeNo = txtbxVolumeNo.Text.Trim();
+                    aBook.KhondoNo = txtbxKhondoNo.Text.Trim();
+                    aBook.PageNumber = txtbxPageNo.Text.Trim();
+                    aBook.Price = txtbxPrice.Text.Trim();
+                    aBook.KitaberMainName = txtbxKitaberMainName.Text.Trim();
+                    aBook.KitaberMashurName = txtbxKitaberSpecialName.Text.Trim();
+                    aBook.Writter = txtbxWritter.Text.Trim();
+                    aBook.WritterBirthYear = txtbxWritterBornDate.Text.Trim();
+                    aBook.WritterDeathYear = txtbxWritterDeathDate.Text.Trim();
+                    aBook.WritterMajhab = txtbxWritterMajhab.Text.Trim();
+                    aBook.Songkolok = txtbxSongkolp.Text.Trim();
+                    aBook.Translator = txtbxTranslator.Text.Trim();
+                    aBook.TranslatorDate = txtbxTranslatorsDate.Text.Trim();
+                    aBook.TranslatorMajhab = txtbxTranslatorMajhab.Text.Trim();
+                    aBook.KitaberMainLanguage = mainLanguageDropDownList.SelectedItem.Text.Trim();
+                    aBook.KitaberTranslateLanguage = translatedLanguageDropDownList.SelectedItem.Text.Trim();
+                    aBook.Subject = txtbxSubject.Text.Trim();
+                    aBook.Chapter = txtbxChapter.Text.Trim();
+                    aBook.Publisher = txtbxProkashok.Text.Trim();
+                    aBook.PublishDate = txtbxProkashkal.Text.Trim();
+                    aBook.Publication = txtbxProkashoni.Text.Trim();
+                    aBook.PublicationPlace = txtbxProkashsthan.Text.Trim();
+                    aBook.Sompadona = txtbxSompadona.Text.Trim();
+                    aBook.Songskoron = txtbxSongokoron.Text.Trim();
+                    aBook.Summary = txtbxSarSonkhep.Text.Trim();
+                    aBook.Comment = txtbxComment.Text.Trim();
+                    if (!aBook.CheckDuplicate())
+                    {
+                        status = aBook.SaveBook();
+                        if (status)
+                        {
+                            string msg = " Book Entry was successful!!";
+                            AlertBox(msg);
+                            Response.Redirect("../Book/List.aspx");
+
+                            //string message = " <span class='actionTopic'>" + " Book Entry was successful!!";
+                            //MyAlertBox(
+                            //    "var callbackOk = function () { window.location = \"/UI/Book/Create.aspx\"; }; WarningAlert(\"" +
+                            //    "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                        }
+                        else
+                        {
+                            string msg = "  Book Entry Failed!!";
+                            AlertBox(msg);
+                            //string message = " <span class='actionTopic'>" + " Book Entry Failed!!";
+                            //MyAlertBox(
+                            //    "var callbackOk = function () { window.location = \"/UI/Book/Create.aspx\"; }; WarningAlert(\"" +
+                            //    "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                        }
+                    }
+                    else
+                    {
+                        string msg = "  Book Already Exists!!";
+                        AlertBox(msg);
+
+                        //string message = " <span class='actionTopic'>" + " Book Entry Failed!!";
+                        //MyAlertBox(
+                        //    "var callbackOk = function () { window.location = \"/UI/Book/Create.aspx\"; }; WarningAlert(\"" +
+                        //    "Process Succeed" + "\", \"" + message + "\");");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+        protected void AlertBox(string msg)
+        {
+            string message = msg;
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.Append("alert('");
+            sb.Append(message);
+            sb.Append("');");
+            ClientScript.RegisterOnSubmitStatement(this.GetType(), "alert", sb.ToString());
+           
+
+        }
+    }
+}

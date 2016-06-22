@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DE842F86-196B-424C-8302-5ED94BEFB83A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Lumex.Project</RootNamespace>
+    <AssemblyName>Lumex.Project</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Lumex.Tech">
+      <HintPath>..\..\..\..\Lumex.Tech.dll</HintPath>
+    </Reference>
+    <Reference Include="Lumex.UserAccess">
+      <HintPath>..\..\..\..\Lumex.UserAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BLL\AppMenuBLL.cs" />
+    <Compile Include="BLL\BankBLL.cs" />
+    <Compile Include="BLL\BankBranchBLL.cs" />
+    <Compile Include="BLL\BankChequeBookBLL.cs" />
+    <Compile Include="BLL\CashOutBLL.cs" />
+    <Compile Include="BLL\ChartOfAccountBLL.cs" />
+    <Compile Include="BLL\CustomerBLL.cs" />
+    <Compile Include="BLL\DebitCreditVoucherBLL.cs" />
+    <Compile Include="BLL\GeneralLedgerTransactionBLL.cs" />
+    <Compile Include="BLL\JournalVoucherBLL.cs" />
+    <Compile Include="BLL\PayToFromCompanyBLL.cs" />
+    <Compile Include="BLL\ProductBLL.cs" />
+    <Compile Include="BLL\ProductGroupBLL.cs" />
+    <Compile Include="BLL\ProductPriceBLL.cs" />
+    <Compile Include="BLL\ProductRequisitionBLL.cs" />
+    <Compile Include="BLL\ProductTransferOrderBLL.cs" />
+    <Compile Include="BLL\ProductTransferRecordBLL.cs" />
+    <Compile Include="BLL\ProductTransferRequisitionBLL.cs" />
+    <Compile Include="BLL\PurchaseOrderBLL.cs" />
+    <Compile Include="BLL\PurchaseRecordBLL.cs" />
+    <Compile Include="BLL\PurchaseRequisitionBLL.cs" />
+    <Compile Include="BLL\PurchaseReturnBLL.cs" />
+    <Compile Include="BLL\PurchaseToSCBLL.cs" />
+    <Compile Include="BLL\PurchaseToWHBLL.cs" />
+    <Compile Include="BLL\ReceivePaymentBLL.cs" />
+    <Compile Include="BLL\SalesCenterBLL.cs" />
+    <Compile Include="BLL\SalesOrderBLL.cs" />
+    <Compile Include="BLL\SalesPersonBLL.cs" />
+    <Compile Include="BLL\UserBLL.cs" />
+    <Compile Include="BLL\UserGroupBLL.cs" />
+    <Compile Include="BLL\VendorBLL.cs" />
+    <Compile Include="BLL\WarehouseBLL.cs" />
+    <Compile Include="DAL\AppMenuDAL.cs" />
+    <Compile Include="DAL\BankBranchDAL.cs" />
+    <Compile Include="DAL\BankChequeBookDAL.cs" />
+    <Compile Include="DAL\BankDAL.cs" />
+    <Compile Include="DAL\CashOutDAL.cs" />
+    <Compile Include="DAL\ChartOfAccountDAL.cs" />
+    <Compile Include="DAL\CustomerDAL.cs" />
+    <Compile Include="DAL\DebitCreditVoucherDAL.cs" />
+    <Compile Include="DAL\GeneralLedgerTransactionDAL.cs" />
+    <Compile Include="DAL\JournalVoucherDAL.cs" />
+    <Compile Include="DAL\PayToFromCompanyDAL.cs" />
+    <Compile Include="DAL\ProductDAL.cs" />
+    <Compile Include="DAL\ProductGroupDAL.cs" />
+    <Compile Include="DAL\ProductPriceDAL.cs" />
+    <Compile Include="DAL\ProductRequisitionDAL.cs" />
+    <Compile Include="DAL\ProductTransferOrderDAL.cs" />
+    <Compile Include="DAL\ProductTransferRecordDAL.cs" />
+    <Compile Include="DAL\ProductTransferRequisitionDAL.cs" />
+    <Compile Include="DAL\PurchaseOrderDAL.cs" />
+    <Compile Include="DAL\PurchaseRecordDAL.cs" />
+    <Compile Include="DAL\PurchaseRequisitionDAL.cs" />
+    <Compile Include="DAL\PurchaseReturnDAL.cs" />
+    <Compile Include="DAL\PurchaseToSCDAL.cs" />
+    <Compile Include="DAL\PurchaseToWHDAL.cs" />
+    <Compile Include="DAL\ReceivePaymentDAL.cs" />
+    <Compile Include="DAL\SalesCenterDAL.cs" />
+    <Compile Include="DAL\SalesOrderDAL.cs" />
+    <Compile Include="DAL\SalesPersonDAL.cs" />
+    <Compile Include="DAL\UserDAL.cs" />
+    <Compile Include="DAL\UserGroupDAL.cs" />
+    <Compile Include="DAL\VendorDAL.cs" />
+    <Compile Include="DAL\WarehouseDAL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\AppSecurity.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,416 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App.Master" AutoEventWireup="true"
+    CodeBehind="Default.aspx.cs" Inherits="lmxIpos.Default" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="headContentPlaceHolder" runat="server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="bodyContentPlaceHolder" runat="server">
+    <asp:UpdatePanel runat="server" UpdateMode="Conditional" ID="UpdatePanel1" ChildrenAsTriggers="true">
+        <ContentTemplate>
+            <div class="title-sitemap grid-12">
+                <h1 class="grid-6">
+                    <i>&#xf132;</i>Dashboard<span>Welcome to Ipos</span></h1>
+                <div class="sitemap grid-6">
+                    <ul>
+                        <li><span>IPOS</span><i>/</i></li>
+                        <li><a href="Default.aspx">Dashboard</a></li>
+                    </ul>
+                </div>
+            </div>
+            <%--<div class="top-buttons grid-12">
+                <div class="grid-2">
+                    <a href="/Default.aspx">
+                        <div class="data-icon" style="color: #ED303C;">
+                            &#xf135;
+                        </div>
+                        <div class="data-info">
+                            <h4>6198</h4>
+                            <h5>
+                                <span class="s-down">&#xf0d7; 12%</span>Sales View</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="grid-2">
+                    <a href="/UI/Sales/SalesRetails.aspx">
+                        <div class="data-icon" style="color: #95CFB7;">
+                            &#xf07a;
+                        </div>
+                        <div class="data-info">
+                            <h4>142</h4>
+                            <h5>
+                                <span class="s-up">&#xf0d8; 23%</span>New Sales</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="grid-2">
+                    <a href="/UI/Product/Create.aspx">
+                        <div class="data-icon" style="color: #00A8C6;">
+                            &#xf0f6;
+                        </div>
+                        <div class="data-info">
+                            <h4>Add</h4>
+                            <h5>
+                                <span class="i-stars">&#xf005;</span> New Product</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="grid-2">
+                    <a href="/Default.aspx">
+                        <div class="data-icon" style="color: #FF823A;">
+                            &#xf0e0;
+                        </div>
+                        <div class="data-info">
+                            <h4>Notify</h4>
+                            <h5>
+                                <span class="msg-count">10</span>New Msgs</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="grid-2">
+                    <a href="/Default.aspx">
+                        <div class="data-icon" style="color: #FF823A;">
+                            &#xf0e0;
+                        </div>
+                        <div class="data-info">
+                            <h4>Payee</h4>
+                            <h5>
+                                <span class="msg-count">7</span>New Msgs</h5>
+                        </div>
+                    </a>
+                </div>
+                <div class="grid-2">
+                    <a href="/Default.aspx">
+                        <div class="data-icon" style="color: #FF823A;">
+                            &#xf0e0;
+                        </div>
+                        <div class="data-info">
+                            <h4>Stock</h4>
+                            <h5>
+                                <span class="msg-count">15</span>New Msgs</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>--%>
+            <div>
+                <%-- ProductTransferOrder
+        <br />
+        <a href="UI/ProductTransferOrder/ReceiveTransferProduct.aspx">UI/ProductTransferOrder/ReceiveTransferProduct.aspx</a>
+        <br />
+        <a href="UI/ProductTransferOrder/TransferOrderDetail.aspx">UI/ProductTransferOrder/TransferOrderDetail.aspx</a>
+        <br />
+        <br />--%>
+            </div>
+            <div class="grid-12">
+                <div class="grid-6">
+                    <div class="widget widget-info">
+                        <header class="widget-header">
+                            <div class="widget-header-icon">
+                                
+                            </div>
+                            <h3 id="Header3" runat="server" class="widget-header-title">User Information</h3>
+                        </header>
+                        <div class="widget-body no-padding">
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    User Id:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblUserId" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    User Name:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblUserName" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    User Group:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblUserGroup" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    Sales Center Name:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblSalesCenterName" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    Warehouse Name:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblWarehouseName" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    Contact Number:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblContactNumber" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    Email:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblEmail" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator grid-12">
+                                <div class="grid-4">
+                                    Address:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblAddress" runat="server" Text="" CssClass="bold"></asp:Label>
+                                </div>
+                            </div>
+                            <div class="widget-separator no-border grid-12">
+                                <div class="grid-4">
+                                    Status:
+                                </div>
+                                <div class="grid-8">
+                                    <asp:Label ID="lblStatus" runat="server" Text=""></asp:Label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="grid-6">
+                        <div class="widget widget-success">
+                            <header class="widget-header">
+                                <div class="widget-header-icon">
+                                    
+                                </div>
+                                <h3 id="H1" runat="server" class="widget-header-title">Today's Sales Chart</h3>
+                            </header>
+                            <div class="widget-body no-padding">
+                                <%--<div class="flot" id="flot-pie-chart"></div>--%>
+                                <div class="widget-separator no-border grid-6">
+                                    <%--<canvas id="pieChart" height="180" width="180"></canvas>--%>
+                                    <div id="pieChartContainer" class="case-container" style="width: 100%; height: 190px; margin-left: -135px;">
+                                    </div>
+                                </div>
+                                <div class="widget-separator no-border grid-6 padding-top-55px">
+                                    <div class="row-fluid padding-top-bottom-5px">
+                                        <div class="grid-5">Total Sale(s):</div>
+                                        <div class="grid-7 bold">
+                                            <asp:Label ID="lblTotalSales" runat="server" Text="60"></asp:Label>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid padding-top-bottom-5px">
+                                        <div class="grid-5">In Cash:</div>
+                                        <div class="grid-7 bold">
+                                            <asp:Label ID="lblInCash" runat="server" Text="40"></asp:Label>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid padding-top-bottom-5px">
+                                        <div class="grid-5">In Due:</div>
+                                        <div class="grid-7 bold">
+                                            <asp:Label ID="lblInDue" runat="server" Text="13"></asp:Label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-6">
+                        <div class="widget padding-all-1px" style="border: none;">
+                            <div class="grid-12">
+                                <div class="grid-12 text-center bg-color-smoooth-green" style="border-top-left-radius: 108px; border-bottom-left-radius: 104px; height: 180px; margin-bottom: 30px;">
+                                    <div style="float: left !important;">
+                                        <input type="text" value="90" class="dial text-color-white box-shadow-none circle-slider-min"
+                                            id="dial1" readonly="readonly">
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo padding-top-10px">
+                                            <a href="/UI/Sales/RetailSales.aspx" class="text-color-white link-hover">Retail Sales</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="/UI/Sales/RetailSalesList.aspx" class="text-color-white link-hover">Retail Sales List</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="/UI/SalesCenter/SalesCenterStock.aspx" class="text-color-white link-hover">Sales Center Stock</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="/UI/SalesReturn/CreateSalesReturn.aspx" class="text-color-white link-hover">Sales Return</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="/ReportUI/SalesRecordReports.aspx" class="text-color-white link-hover">Sales Record Reports</a></h4>
+                                    </div>
+                                </div>
+                                <%--<div class="grid-12 text-center bg-color-tomato border-right-1px" style="border-top-left-radius: 108px;
+                                    border-bottom-left-radius: 104px; height: 180px;">
+                                    <div style="float: left !important;">
+                                        <input type="text" value="30" class="dial text-color-white box-shadow-none circle-slider-min"
+                                            id="dial4" readonly="readonly">
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo padding-top-10px">
+                                            <a href="" class="text-color-white link-hover">new link</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="" class="text-color-white link-hover">new link</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="" class="text-color-white link-hover">new link</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="" class="text-color-white link-hover">new link</a></h4>
+                                    </div>
+                                    <div class="row-fuild">
+                                        <h4 class="typo">
+                                            <a href="" class="text-color-white link-hover">new link</a></h4>
+                                    </div>
+                                </div>--%>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget">
+                <div class="grid-12 margin-bottom-20px">
+                    <a href="/UI/PurchaseToSC/CreatePurchase.aspx">
+                        <div class="widget-separator no-border grid-2 text-center text-color-white border-right-1px bg-color-lmxblue link-hover-opacity">
+                            <i class="icon-shopping-cart icon-3x"></i>
+                            <br />
+                            Purchase
+                        </div>
+                    </a><a href="/UI/Sales/RetailSales.aspx">
+                        <div class="widget-separator no-border grid-2 text-center text-color-white border-right-1px bg-color-tomato link-hover-opacity">
+                            <i class="icon-tags icon-3x"></i>
+                            <br />
+                            Sales
+                        </div>
+                    </a><a href="/UI/ReceiveFromCustomer/PaymentByCustomer.aspx">
+                        <div class="widget-separator no-border grid-2 text-center text-color-white border-right-1px bg-color-aqqa link-hover-opacity">
+                            <i class="icon-money icon-3x"></i>
+                            <br />
+                            Customer Payment
+                        </div>
+                    </a><a href="/UI/TodaysCashOut/TodaysCashOutEntry.aspx">
+                        <div class="widget-separator no-border grid-2 text-center text-color-white border-right-1px bg-color-megenta link-hover-opacity">
+                            <i class="icon-share icon-3x"></i>
+                            <br />
+                            Today's Cash Out
+                        </div>
+                    </a><a href="/UI/Product/ListView.aspx">
+                        <div class="widget-separator no-border grid-2 text-center text-color-white border-right-1px bg-color-hard-blue link-hover-opacity">
+                            <i class="icon-th-list icon-3x"></i>
+                            <br />
+                            Product List
+                        </div>
+                    </a><a href="/UI/User/ChangePassword.aspx">
+                        <div class="widget-separator no-border grid-2 text-center text-color-white bg-color-orange link-hover-opacity">
+                            <i class="icon-cog icon-3x"></i>
+                            <br />
+                            Change Password
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+</asp:Content>
+<asp:Content ID="Content3" ContentPlaceHolderID="scriptContentPlaceHolder" runat="server">
+    <%--<script type="text/javascript" src="scripts/Chart.js"></script>
+    <script type="text/javascript">
+
+        var pieData = [
+{
+    value: 30,
+    color: "#F38630",
+    label: 'Sleep',
+    labelColor: 'white',
+    labelFontSize: '10px'
+},
+{
+    value: 50,
+    color: "#E0E4CC",
+    label: 'Music',
+    labelColor: '#444',
+    labelFontSize: '1.4em'
+},
+{
+    value: 100,
+    color: "#69D2E7",
+    label: 'Work',
+    labelColor: 'rgb(0,0,0)',
+    labelFontSize: '175%'
+}
+];
+
+        //        				var myPie = new Chart(document.getElementById("pieChart").getContext("2d")).Pie(pieData);
+        var myPie = new Chart(document.getElementById("pieChart").getContext("2d")).Pie(pieData, {
+            animationSteps: 100,
+            animationEasing: 'easeOutBounce'
+        });
+             
+    </script>--%>
+    <%--<script type="text/javascript" src="scripts/PieChart/js/jquery-1.10.2.min.js"></script>--%>
+    <script type="text/javascript" src="scripts/PieChart/js/knockout-3.0.0.js"></script>
+    <script type="text/javascript" src="scripts/PieChart/js/globalize.min.js"></script>
+    <script type="text/javascript" src="scripts/PieChart/js/dx.chartjs.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var totalSales = document.getElementById("lblTotalSales").textContent;
+            var due = document.getElementById("lblInDue").textContent;
+            var cash = document.getElementById("lblInCash").textContent;
+
+            var dataSource = [
+//                { name: "Total", value: +totalSales },
+                { name: "Due", value: +due },
+                { name: "In Cash", value: +cash }
+            ];
+
+            $("#pieChartContainer").dxPieChart({
+                size: {
+                    width: 500
+                },
+                dataSource: dataSource,
+                series: [
+                    {
+                        argumentField: "name",
+                        valueField: "value",
+                        label: {
+                            visible: true,
+                            connector: {
+                                visible: true,
+                                width: 1
+                            }
+                        }
+                    }
+                ],
+                title: "",
+                legend: {
+                    visible: false
+                },
+                tooltip: {
+                    enabled: true,
+                    format: "millions",
+                    percentPrecision: 2,
+                    customizeText: function () {
+                        //return this.valueText + " - " + this.percentText;
+                        return this.percentText;
+                    }
+                }
+            });
+        });
+    </script>
+</asp:Content>

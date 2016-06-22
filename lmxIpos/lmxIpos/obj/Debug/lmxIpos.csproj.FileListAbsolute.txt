@@ -1,0 +1,12 @@
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\lmxIpos.dll.config
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\lmxIpos.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\lmxIpos.pdb
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\Lumex.Project.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\Lumex.Report.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\Microsoft.ReportViewer.WebForms.DLL
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\Newtonsoft.Json.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\Lumex.Project.pdb
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\bin\Lumex.Report.pdb
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\obj\Debug\lmxIpos.csprojResolveAssemblyReference.cache
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\obj\Debug\lmxIpos.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\lmxIpos\obj\Debug\lmxIpos.pdb

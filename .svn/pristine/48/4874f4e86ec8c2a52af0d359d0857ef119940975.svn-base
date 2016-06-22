@@ -1,0 +1,168 @@
+﻿using System;
+using System.Data;
+using Lumex.Project.DAL;
+using Lumex.Tech;
+
+namespace Lumex.Project.BLL
+{
+    public class CashOutBLL
+    {
+        public string Amount { get; set; }
+        public string Narration { get; set; }
+        public string Description { get; set; }
+        public string CashOutDate { get; set; }
+        public string Status { get; set; }
+        public string Serial { get; set; }
+        public string EntryDate { get; set; }
+        public string SalesCenterId { get; set; }
+
+        public DataTable SaveCashOutEntry()
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                DataTable dt = cashOut.SaveCashOutEntry(this, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public DataTable GetTodaysCashOutEntryList()
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = cashOut.GetTodaysCashOutEntryList(this, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public void DeleteTodaysCashOutEntryBySerial(string serial)
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                cashOut.DeleteTodaysCashOutEntryBySerial(serial, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public void UpdateTodaysCashOutEntryBySerial()
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                cashOut.UpdateTodaysCashOutEntryBySerial(this, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public void ApproveTodaysCashOutEntryBySerial(string entryDate, string salesCenterId)
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                cashOut.ApproveTodaysCashOutEntryBySerial(entryDate, salesCenterId, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public string AccountHead { get; set; }
+
+        public string AccountHEad { get; set; }
+
+        public void ApproveTodaysCashOutBySerial(System.Collections.Generic.List<CashOutBLL> cashOuts)
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                cashOut.ApproveTodaysCashOutBySerial(this, cashOuts, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+        }
+
+        public DataTable GetTodaysCashOutEntryListBySerial()
+        {
+            CashOutDAL cashOut = new CashOutDAL();
+            DataTable dt = new DataTable();
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                dt = cashOut.GetTodaysCashOutEntryListBySerial(db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cashOut = null;
+            }
+            return dt;
+        }
+    }
+}

@@ -1,0 +1,298 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace Lumex.Project.DAL
+{
+    public class VendorDAL
+    {
+        public DataTable SaveVendor(VendorBLL vendor, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorName", vendor.VendorName.Trim());
+                db.AddParameters("@Address", vendor.Address.Trim());
+                db.AddParameters("@Country", vendor.Country.Trim());
+                db.AddParameters("@City", vendor.City.Trim());
+                db.AddParameters("@District", vendor.District.Trim());
+                db.AddParameters("@PostalCode", vendor.PostalCode.Trim());
+                db.AddParameters("@Phone", vendor.Phone.Trim());
+                db.AddParameters("@Mobile", vendor.Mobile.Trim());
+                db.AddParameters("@Fax", vendor.Fax.Trim());
+                db.AddParameters("@Email", vendor.Email.Trim());
+                db.AddParameters("@WareHouse", vendor.warehouse.Trim());
+                db.AddParameters("@SalesCenter", vendor.salescenter.Trim());
+                db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+
+                DataTable dt = db.ExecuteDataTable("INSERT_VENDOR", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public void SaveProductVendorsByProductId(string productId, List<string> vendors, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@ProductId", productId);
+                db.ExecuteNonQuery("DELETE_PRODUCT_VENDORS_BY_PRODUCT_ID", true);
+
+                for (int i = 0; i < vendors.Count; i++)
+                {
+                    db.ClearParameters();
+                    db.AddParameters("@ProductId", productId);
+                    db.AddParameters("@VendorId", vendors[i].ToString());
+                    db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                    db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+
+                    db.ExecuteDataTable("INSERT_PRODUCT_VENDORS_BY_PRODUCT_ID", true);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendors = null;
+            }
+        }
+
+        public DataTable GetVendorList(LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@UserId", LumexSessionManager.Get("ActiveUserId").ToString());
+                DataTable dt = db.ExecuteDataTable("GET_VENDORS", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetVendorListByActivationStatus(string isActive, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@IsActive", isActive.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_VENDORS_BY_ACTIVATION_STATUS", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetVendorListByActivationStatusAndProduct(string isActive, string productBarcodeIdName, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@IsActive", isActive.Trim());
+                db.AddParameters("@ProductBarcodeIdName", productBarcodeIdName.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_VENDORS_BY_PRODUCT_AND_ACTIVATION_STATUS", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetDeletedVendorListByDateRangeAll(string fromDate, string toDate, string search, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@FromDate", fromDate.Trim());
+                db.AddParameters("@ToDate", toDate.Trim());
+                db.AddParameters("@Search", search.Trim());
+
+                DataTable dt = db.ExecuteDataTable("GET_DELETED_VENDORS_BY_DATE_RANGE_ALL", true);
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetProductVendorsByProductId(string productId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@ProductId", productId);
+                DataTable dt = db.ExecuteDataTable("GET_PRODUCT_VENDORS_BY_PRODUCT_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetActiveVendors(LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@UserId", LumexSessionManager.Get("ActiveUserId").ToString());
+                DataTable dt = db.ExecuteDataTable("GET_ACTIVE_VENDORS", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetVendorById(string vendorId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorId", vendorId);
+                DataTable dt = db.ExecuteDataTable("GET_VENDOR_BY_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public bool CheckDuplicateVendor(string vendorName,string Warehouse,string SalesCenter, LumexDBPlayer db)
+        {
+            bool status = false;
+
+            try
+            {
+                db.AddParameters("@VendorName", vendorName);
+                db.AddParameters("@Warehouse", Warehouse);
+                db.AddParameters("@SalesCenter", SalesCenter);
+                DataTable dt = db.ExecuteDataTable("CHECK_DUPLICATE_VENDOR", true);
+
+                if (dt.Rows.Count > 0)
+                {
+                    status = true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return status;
+        }
+
+        public void UpdateVendorActivation(string vendorId, string activationStatus, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorId", vendorId);
+                db.AddParameters("@IsActive", activationStatus);
+                db.AddParameters("@ActivatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@ActivatedFrom", LumexLibraryManager.GetTerminal());
+
+                db.ExecuteNonQuery("UPDATE_VENDOR_ACTIVATION", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void DeleteVendor(string vendorId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorId", vendorId);
+                db.AddParameters("@DeletedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@DeletedFrom", LumexLibraryManager.GetTerminal());
+
+                db.ExecuteNonQuery("DELETE_VENDOR_BY_ID", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void UpdateVendor(VendorBLL vendor, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@VendorId", vendor.VendorId.Trim());
+                db.AddParameters("@VendorName", vendor.VendorName.Trim());
+                db.AddParameters("@Address", vendor.Address.Trim());
+                db.AddParameters("@Country", vendor.Country.Trim());
+                db.AddParameters("@City", vendor.City.Trim());
+                db.AddParameters("@District", vendor.District.Trim());
+                db.AddParameters("@PostalCode", vendor.PostalCode.Trim());
+                db.AddParameters("@Phone", vendor.Phone.Trim());
+                db.AddParameters("@Mobile", vendor.Mobile.Trim());
+                db.AddParameters("@Fax", vendor.Fax.Trim());
+                db.AddParameters("@Email", vendor.Email.Trim());
+                db.AddParameters("@Warehouse",vendor.warehouse);
+                db.AddParameters("@SalesCenter", vendor.salescenter);
+                db.AddParameters("@ModifiedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@ModifiedFrom", LumexLibraryManager.GetTerminal());
+
+                db.ExecuteNonQuery("UPDATE_VENDOR_BY_ID", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        internal DataTable GetActiveVendorsListByWHID(VendorBLL vendorBLL, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@WHID", vendorBLL.warehouse);
+                DataTable dt = db.ExecuteDataTable("GET_ACTIVE_VENDORS_WH_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        internal DataTable GetVendorWisePaymentList(string vendorId, string fromDate, string toDate, string status, LumexDBPlayer db)
+        {
+            try
+            {
+               
+
+                db.AddParameters("@VendorId", vendorId);
+                db.AddParameters("@FromDate", fromDate);
+                db.AddParameters("@ToDate", toDate);
+                db.AddParameters("@Status", status);
+
+
+                DataTable dt = db.ExecuteDataTable("SELECT [Serial],[JournalNumber],[AutoVoucherNumber],[ManualVoucherNumber],[VoucherDate],[ReceivePaymentDate],[RecordDate],[RecordId],[ReceivePaymentFlag],[VendorId],[WarehouseId],[CustomerId],[SalesCenterId],[Amount],[DueAmount],[PaymentMode],[Bank],[BankBranch],[ChequeNumber],[ChequeDate],[Description],[Narration],[Status],[CreatedBy],[CreatedFrom],[CreatedDateTime],[ModifiedBy],[ModifiedFrom],[ModifiedDateTime],[ApprovedBy],[ApprovedFrom],[ApprovedDateTime] FROM [dbo].[ReceivePayment] WHERE VendorId=@VendorId AND CAST(@FromDate AS DATE) <= CAST(CreatedDateTime AS DATE) AND CAST(@ToDate AS DATE) >= CAST(CreatedDateTime AS DATE) AND Status=@Status");
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
+}

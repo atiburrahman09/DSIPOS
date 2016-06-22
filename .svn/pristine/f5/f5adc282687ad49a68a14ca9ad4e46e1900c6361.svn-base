@@ -1,0 +1,38 @@
+﻿/* Created By: LumexTech Solution Ltd. */
+
+.data
+{
+    padding: 1px;
+}
+
+.widget .widget-separator
+{
+    padding: 5px 10px;
+}
+
+h1.typo, h2.typo, h3.typo, h4.typo, h5.typo, h6.typo
+{
+    margin: 5px 0 0 0;
+}
+#selectedProductListGridView tr td:nth-child(3)
+{
+    font-weight: bold;
+}
+#selectedProductListGridView tr td:nth-child(10)
+{
+    width: 70px;
+}
+.table thead tr
+{
+    background: linear-gradient(to bottom, whitesmoke 0px, rgb(236, 236, 236) 100%) repeat scroll 0 0 transparent !important;
+}
+
+.gridView
+{
+    border: 1px solid rgb(208, 208, 208) !important;
+}
+
+.dataTables_wrapper 
+{
+    padding: 0px;
+}

@@ -1,0 +1,697 @@
+﻿using System;
+using System.Data;
+using Lumex.Project.DAL;
+using Lumex.Tech;
+
+namespace Lumex.Project.BLL
+{
+    public class SalesOrderBLL
+    {
+        public string SalesCenterId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string SalesRecordId { get; set; }
+        public string CustomerId { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerContactNumber { get; set; }
+        public string CustomerAddress { get; set; }
+        public string DeliveryDate { get; set; }
+        public string SalesPersonId { get; set; }
+        public string TotalAmount { get; set; }
+        public string VAT { get; set; }
+        public string TotalReceivable { get; set; }
+        public string ReceivedAmount { get; set; }
+        public string Narration { get; set; }
+        public string Status { get; set; }
+        public string LCNumber { get; set; }
+        public string TransportType { get; set; }
+        public string ShippingAddress { get; set; }
+        public string BillingAddress { get; set; }
+        public string PaymentMode { get; set; }
+        public string Bank { get; set; }
+        public string BankBranch { get; set; }
+        public string ChequeNumber { get; set; }
+        public string ChequeDate { get; set; }
+        public string ChangeAmount { get; set; }
+        public string TotalVATAmount { get; set; }
+        public string Amount { get; set; }
+        public string Due { get; set; }
+        public string DiscountAmount { get; set; }
+        public string SalesReturnId { get; set; }
+        public string ReturnAmount { get; set; }
+        public string ReturnVATAmount { get; set; }
+        public string SalesDueAmount { get; set; }
+        public string PurchaseRecordId { get; set; }
+
+        public string SaveSalesOrder(DataTable dtPrdList)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                string Id = salesOrder.SaveSalesOrder(this, dtPrdList, db);
+                db.Stop();
+
+                return Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+        public string SaveRetailSales(DataTable dtPrdList)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                string Id = salesOrder.SaveRetailSales(this, dtPrdList, db);
+                db.Stop();
+
+                return Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+        public string SaveDamageProduct(DataTable dtPrdList)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                string Id = salesOrder.SaveDamageProduct(this, dtPrdList, db);
+                db.Stop();
+
+                return Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+        public string SaveWarehouseDamageProduct(DataTable dtPrdList)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                string Id = salesOrder.SaveWarehouseDamageProduct(this, dtPrdList, db);
+                db.Stop();
+
+                return Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+        public DataTable GetSalesOrdersListBySalesCenterDateRangeAndStatus(string salesCenterId, string fromDate, string toDate, string status)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesOrdersListBySalesCenterDateRangeAndStatus(salesCenterId, fromDate, toDate, status, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetPendingSalesOrdersListBySalesCenter(string salesCenterId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetPendingSalesOrdersListBySalesCenter(salesCenterId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesOrdersListBySalesCenterAndStatus(string salesCenterId, string status)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesOrdersListBySalesCenterAndStatus(salesCenterId, status, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesOrderById(string salesOrderId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesOrderById(salesOrderId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesOrderProductListById(string salesOrderId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesOrderProductListById(salesOrderId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public void CancelSalesOrderById(string salesOrderId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                salesOrder.CancelSalesOrderById(salesOrderId, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public void UpdateSalesOrderOnTransport(string salesOrderId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                salesOrder.UpdateSalesOrderOnTransport(salesOrderId, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public void UpdateSalesOrderOnDelivered(string salesOrderId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                salesOrder.UpdateSalesOrderOnDelivered(salesOrderId, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesRecordsListBySalesCenterDateRangeAndStatus(string salesCenterId, string fromDate, string toDate, string status)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesRecordsListBySalesCenterDateRangeAndStatus(salesCenterId, fromDate, toDate, status, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetDamageRecordsListBySalesCenterDateRangeAndStatus(string salesCenterId, string fromDate, string toDate, string status)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetDamageRecordsListBySalesCenterDateRangeAndStatus(salesCenterId, fromDate, toDate, status, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetDamageRecordsListByWarehouseDateRangeAndStatus(string warehouseId, string fromDate, string toDate, string status)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetDamageRecordsListByWarehouseDateRangeAndStatus(warehouseId, fromDate, toDate, status, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesReturnsListBySalesCenterDateRangeAndStatus(string salesCenterId, string fromDate, string toDate, string status)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesReturnsListBySalesCenterDateRangeAndStatus(salesCenterId, fromDate, toDate, status, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesRecordById(string salesRecordId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesRecordById(salesRecordId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetDamageRecordById(string damageRecordId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetDamageRecordById(damageRecordId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesReturnById(string salesReturnId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesReturnById(salesReturnId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesRecordProductListById(string salesRecordId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesRecordProductListById(salesRecordId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesRecordProductListByIdForReturn(string salesRecordId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesRecordProductListByIdForReturn(salesRecordId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetDamageRecordProductListById(string damageRecordId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetDamageRecordProductListById(damageRecordId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetSalesReturnProductListById(string salesReturnId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetSalesReturnProductListById(salesReturnId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable GetPaymentListBySales(string salesRecordId)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.GetPaymentListBySales(salesRecordId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable SaveCustomerPaymentBySales()
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = salesOrder.SaveCustomerPaymentBySales(this, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public DataTable SaveSalesReturn(DataTable dtPrdList)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                DataTable dt = salesOrder.SaveSalesReturn(this, dtPrdList, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+        public void SaveUncollectableAmountBySalesRecordId(string salesRecordId, string uncollectableAmount)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                salesOrder.SaveUncollectableAmountBySalesRecordId(salesRecordId, uncollectableAmount, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        public object IsDuesAdjustforSalesReturn { get; set; }
+
+        public bool rejectProduct(string SOID)
+        {
+            SalesOrderDAL newSalesDal = new SalesOrderDAL();
+            bool status = false;
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                status = newSalesDal.rejectProduction(db, SOID);
+                db.Stop();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return status;
+        }
+
+        public string AccountId { get; set; }
+
+        public bool UpdateSalesOrderOnApproved(string salesRecordId, string salesOrderId)
+        {
+            SalesOrderDAL newSalesDal = new SalesOrderDAL();
+            bool status = false;
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                status = newSalesDal.UpdateSalesOrderOnApproved(db, salesRecordId, salesOrderId);
+                db.Stop();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return status;
+        }
+
+        public string ApproveSalesOrder(DataTable dtPrdList)
+        {
+            SalesOrderDAL salesOrder = new SalesOrderDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                string Id = salesOrder.ApproveSalesOrder(this, dtPrdList, db);
+                db.Stop();
+
+                return Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+    }
+}

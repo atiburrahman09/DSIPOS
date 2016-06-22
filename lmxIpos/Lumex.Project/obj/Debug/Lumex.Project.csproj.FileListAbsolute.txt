@@ -1,0 +1,5 @@
+E:\Atib\Projects\DSIPOS\lmxIpos\Lumex.Project\bin\Debug\Lumex.Project.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\Lumex.Project\bin\Debug\Lumex.Project.pdb
+E:\Atib\Projects\DSIPOS\lmxIpos\Lumex.Project\obj\Debug\Lumex.Project.dll
+E:\Atib\Projects\DSIPOS\lmxIpos\Lumex.Project\obj\Debug\Lumex.Project.pdb
+E:\Atib\Projects\DSIPOS\lmxIpos\Lumex.Project\obj\Debug\Lumex.Project.csprojResolveAssemblyReference.cache

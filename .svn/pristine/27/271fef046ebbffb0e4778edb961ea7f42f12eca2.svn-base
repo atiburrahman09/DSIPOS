@@ -1,0 +1,439 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="App.master.cs" Inherits="lmxIpos.App" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <title>LumexTech | IPOS System</title>
+    <link rel="icon" type="image/png" href="/content/images/lmx-favicon.png">
+    <link rel="Stylesheet" type="text/css" href="/content/css/AppStyle.css" />
+    <link rel="stylesheet" type="text/css" href="/content/css/style-min.css">
+    <link rel="stylesheet" type="text/css" href="/content/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/content/css/bootstrap-responsive.min.css">
+    <link href="/content/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/content/theme/css/fonts.css" rel="stylesheet" type="text/css" />
+    <%-- <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css"
+        rel="stylesheet">--%>
+    <link href="/content/theme/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/scripts/highlight.js/styles/github.css" type="text/css">
+    <%-- <link href="http://fonts.googleapis.com/css?family=Inconsolata:400,700" rel="stylesheet"
+        type="text/css">--%>
+    <!-- Color Picker -->
+    <link rel="stylesheet" media="screen" type="text/css" href="/scripts/colorpicker/css/colorpicker.css" />
+    <%--    <script src="/scripts/jquery.validate.min.js" type="text/javascript"></script>--%>
+
+    <link href="/content/css/chosen.css" rel="stylesheet" type="text/css" />
+    <link href="/content/css/AlertBox.css" rel="stylesheet" type="text/css" />
+    <link href="content/css/Custom.css" rel="stylesheet" />
+
+    <asp:ContentPlaceHolder ID="headContentPlaceHolder" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server" novalidate>
+        <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
+        <%--  <asp:UpdatePanel runat="server" UpdateMode="Conditional" ID="UpdatePanel1" ChildrenAsTriggers="true">
+        <ContentTemplate>--%>
+        <div class="divcontainer bg-color-gray">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="logo-reduce-sidebar">
+                    <div class="logo">
+                        <a href="/Default.aspx">
+                            <img class="logo-sidebar-big" src="/Content/Images/lmx-logo.png" alt="lmx-logo">
+                            <img class="logo-sidebar-small" src="/Content/Images/lmx-logo-small.png" alt="lmx-logo">
+                        </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                    <div class="reduce-sidebar">
+                        &#xf0c9;
+                    </div>
+                </div>
+                <nav class="nav-sidebar">
+                    <ul>
+                        <li><a title="Dashboard" href="/Default.aspx" class="on sidebar-small tipsy-w"><span
+                            class="icon icon-dashboard"></span></a><a href="/Default.aspx" class="on sidebar-big"><span
+                                class="icon icon-dashboard"></span>Dashboard </a></li>
+                        <asp:Repeater ID="ParentLevelMenuRepeater" runat="server" OnItemDataBound="ParentLevelMenuRepeater_ItemDataBound">
+                            <ItemTemplate>
+                                <li><a href="<%# Eval("URL")%>" class="sidebar-small newCarate"><span class="<%# Eval("ImageURL")%>"></span></a><a href="<%# Eval("URL")%>" class="sidebar-big newCarate">
+                                    <span class="<%# Eval("ImageURL")%>"></span>
+                                    <%# Eval("DisplayName")%>
+                                    <i class="sub-menu-caret">&#xf0dd;</i> </a>
+                                    <asp:Repeater ID="ChildLevelMenuRepeater" runat="server">
+                                        <HeaderTemplate>
+                                            <ul class="sub-sidebar">
+                                        </HeaderTemplate>
+                                        <ItemTemplate>
+                                            <li><a href="<%# Eval("URL")%>"><span class="<%# Eval("ImageURL")%>"></span>
+                                                <%# Eval("DisplayName")%>
+                                            </a></li>
+                                        </ItemTemplate>
+                                        <FooterTemplate>
+                                            </ul>
+                                        </FooterTemplate>
+                                    </asp:Repeater>
+                                </li>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </ul>
+                </nav>
+                <!-- Announcement Widget -->
+                <%-- <div class="sidebar-widget">
+                <h4 class="widget-title">
+                    <span>&#xf02e;</span>Announcement</h4>
+                <div class="ann-content">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur, magnam, quidem
+                    ducimus vitae <a href="Default.aspx#">dolore</a> fugiat?
+                </div>
+            </div>--%>
+                <!-- Social Widget -->
+                <%--  <div class="sidebar-widget">
+                        <h4 class="widget-title">
+                            <span>&#xf0ac;</span>Social Widget</h4>
+                        <div class="facebook-twitter">
+                            <a href="http://facebook.com/Lumextech" id="facebook"><span>&#xf082;</span> Facebook
+                            </a><a href="http://twitter.com/Lumextech" id="twitter"><span>&#xf099;</span> Twitter</a>
+                        </div>
+                        <span class="social-indication">Getting in touch with us!</span>
+                    </div>--%>
+                <!-- Ads Widget -->
+                <div class="sidebar-widget">
+                    <h4 class="widget-title">
+                        <span>&#xf0a1;</span>Ads</h4>
+                    <a href="#" class="ads-link">
+                        <img src="#" alt="ads">
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+            </aside>
+            <!-- Contents -->
+            <div class="contents border-bootm-1px">
+                <!-- Header -->
+                <header class="header grid-12">
+                    <!-- Mobide Header -->
+                    <div class="grid-12 mobile-header">
+                        <!-- Logo -->
+                        <div class="logo-mh">
+                            <a href="/Default.aspx">
+                                <img src="/Content/Images/lmx-logo-small.png" alt="lmx-logo">
+                            </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                        <!-- Reduce -->
+                        <div class="reduce-sidebar-mh">
+                            &#xf0c9;
+                        </div>
+                    </div>
+                    <!-- Search and Top Nav-->
+                    <div class="search-top-nav grid-8">
+                        <!-- Top Navigation -->
+                        <div class="top-nav">
+                            <ul>
+                                <li>
+                                    <asp:LinkButton ID="lnlbtnInventory" runat="server" OnClick="lnlbtnInventory_Click"><i class="i i-left">&#xf015;</i> <span>Inventory</span></asp:LinkButton></li>
+                                <%-- <li>
+                                <asp:HyperLink ID="hyprlinkinventory" runat="server"><i class="i i-left">&#xf126;</i> <span>
+                                 Inventory</span></asp:HyperLink></li>--%>
+                                <%-- <li id="navinventory"><a class="on" onclick="return showsubmenu(this,'inventorysubmenu')"
+                                href="/Default.aspx"><i class="i i-left">&#xf015;</i> <span>Inventory</span></a></li>--%>
+                                <li>
+                                    <asp:LinkButton ID="lnlbtnAccounts" runat="server" OnClick="lnlbtnAccounts_Click">   <i class="i i-left">&#xf0d6;</i> <span>Accounts</span></asp:LinkButton></li>
+                                <li>
+                                    <asp:LinkButton ID="lnkbtnLibrary" runat="server" OnClick="lnlbtnInventory_Click"><i class="i i-left">&#xf015;</i> <span>Library</span></asp:LinkButton></li>
+                                <li>
+                                    <asp:LinkButton ID="lnkbtnAddv" runat="server" OnClick="lnlbtnInventory_Click"><i class="i i-left">&#xf015;</i> <span>Advertising</span></asp:LinkButton></li>
+                                <li>
+                                    <asp:LinkButton ID="lnlbtnSettings" runat="server" OnClick="lnlbtnSettings_Click">   <i class="i i-left">&#xf085;</i> <span>Settings</span></asp:LinkButton></li>
+                                <%--  <li><a href="/UI/PurchaseToSC/CreatePurchase.aspx"><i class="i i-left">&#xf091;</i>
+                                    <span>Purchase</span></a></li>
+                                <li><a href="/UI/Sales/RetailSales.aspx" id="A1"><i class="i i-left">&#xf126;</i> <span>Sales</span></a> </li>--%>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- User -->
+                    <div class="top-user grid-4">
+                        <!-- User Avatar -->
+                        <%--  <div class="user-avatar">
+                        <img src="/Content/Images/top-avatar.png" alt="avatar">
+                    </div>--%>
+                        <!-- User Data -->
+                        <div class="user-data">
+                            <div class="User-Info-Top">
+                                <h4 style="padding-top: 10px;">
+                                    <a href="/UI/User/UserProfile.aspx">
+                                        <asp:Label ID="lbluserName" runat="server" Text=""></asp:Label></a></h4>
+                                <h6>
+                                    <asp:Label ID="lblUserDasignation" runat="server" Text=""></asp:Label>
+                                </h6>
+                            </div>
+                            <!-- User Notifications -->
+                            <div class="User-Notifiacation-top">
+                               <%-- <ul class="user-notifications">
+                                    <li id="u-top-logs-toggle">&#xf0ac;<span>0</span></li>
+                                    <li id="u-top-msg-toggle">&#xf003;<span>0</span></li>
+                                </ul>--%>
+                                <!-- User Options -->
+                                <ul class="user-options u-top-logs-toggle">
+                                    <li>
+                                        <div id="u-s-icon" class="btn btn-menu btn-small btn-transparent btn-o-icon">
+                                            <i>&#xf013;</i>
+                                            <!-- Menu -->
+                                            <div class="menu menu-bottom-right">
+                                                <ul>
+                                                    <li><a href="/Default.aspx">
+                                                        <div class="menu-icon">
+                                                            <i class="icon"></i>
+                                                        </div>
+                                                        <div class="menu-title">
+                                                            Dashboard
+                                                        </div>
+                                                    </a></li>
+                                                    <li><a href="/UI/User/UserProfile.aspx">
+                                                        <div class="menu-icon">
+                                                            <i class="icon-edit"></i>
+                                                        </div>
+                                                        <div class="menu-title">
+                                                            Edit Profile
+                                                        </div>
+                                                    </a></li>
+                                                    <li><a href="/UI/User/ChangePassword.aspx">
+                                                        <div class="menu-icon">
+                                                            <i class="icon-cog"></i>
+                                                        </div>
+                                                        <div class="menu-title">
+                                                            Settings
+                                                        </div>
+                                                    </a></li>
+                                                  <%--  <li><a href="#" id="lock-s">
+                                                        <div class="menu-icon">
+                                                           
+                                                            <i class="icon-laptop"></i>
+                                                        </div>
+                                                        <div class="menu-title">
+                                                            Lock Screen
+                                                        </div>
+                                                    </a></li>--%>
+                                                    <li style="border-top: 1px solid #F3F3F3"><a href="/Logout.aspx">
+                                                        <div class="menu-icon">
+                                                            &nbsp;<i class="icon-lock"></i>
+                                                        </div>
+                                                        <div class="menu-title">
+                                                            Logout
+                                                        </div>
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="user-message-content">
+                            <a href="/Default.aspx" class="u-single-mesg">
+                                <%--<img src="/Content/Images/chat/u1.jpg" alt="aaa">
+                            <h5>
+                                Joseph Moore</h5>
+                            <p>
+                                Lorem ipsum dolor sit amet ...</p>
+                            <span><i class="i i-left i-small">&#xf00c;</i>12, August</span> </a><a href="Default.aspx#"
+                                class="u-single-mesg">
+                                <img src="/Content/Images/chat/u2.jpg" alt="aaa">
+                                <h5>
+                                    Holly Roberts</h5>
+                                <p>
+                                    Nostrum quidem eaque tempora ea totam ...</p>
+                                <span><i class="i i-left i-small">&#xf112;</i>11, July</span>--%>
+                            </a>
+                        </div>
+                        <div class="user-logs-content">
+                            <a href="/Default.aspx" class="u-single-mesg"><i>&#xf03e;</i>
+                                <%-- <p>
+                                <strong>Stephen</strong> Add new picture</p>
+                            <span>12, August</span> </a><a href="#" class="u-single-mesg"><i>&#xf0e5;</i>
+                                <p>
+                                    <strong>Rose</strong> Add new comments</p>
+                                <span>11, July</span> </a><a href="#" class="u-single-mesg"><i>&#xf07a;</i>
+                                    <p>
+                                        <strong>Thomas</strong> Buy your latest item</p>
+                                    <span>10, July</span> --%></a>
+                        </div>
+                    </div>
+                    <!-- Hidden Stats -->
+                    <%--  <div class="grid-12 hidden-top-stats">
+                    <!-- Multiple Axis -->
+                    <div class="grid-12">
+                        <div class="widget widget-no-border">
+                            <div class="widget-body no-padding">
+                                <div class="h-m-s">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>--%>
+                    <!-- Popular Page -->
+                    <!-- Title & Sitemap -->
+                </header>
+                <div class="grid-12">
+                    <asp:ContentPlaceHolder ID="bodyContentPlaceHolder" runat="server">
+                    </asp:ContentPlaceHolder>
+                </div>
+            </div>
+            <footer class="footer grid-12 text-center bg-color-gray" style="padding: 0; border: none;">
+                <div class="copyright grid-12">
+                    © 2014. Developed by <a href="http://www.lumextech.com" target="_blank">LumexTech Solutions
+                    Ltd.</a>
+                </div>
+            </footer>
+        </div>
+        <%--  </ContentTemplate>
+    </asp:UpdatePanel>--%>
+        <div class="screen-lock">
+            <div class="login-widget">
+                <header class="login-header">
+                    <a href="/Default.aspx">
+                        <img src="/Content/Images/lmx-logo.png" alt="logo">
+                    </a>
+                </header>
+                <h4 class="typo login-title">Unlock Screen?
+                </h4>
+                <div class="form-separator form-field">
+                    <div class="field-icon field-icon-left">
+                        <%--<i class="i">&#xf023;</i>--%>
+                        <i class="icon-key"></i>
+                        <asp:TextBox ID="txtbxUnlockpass" TextMode="Password" placeholder="Password" class="form form-full"
+                            runat="server"></asp:TextBox>
+                    </div>
+                </div>
+                <div class="login-submit">
+                    <asp:Button ID="Button1" class="btn btn-submit" runat="server" Text="Unlock" />
+                    <%-- <div id="sc-ul" class="btn btn-submit">
+                    Unlock</div>--%>
+                </div>
+            </div>
+        </div>
+        <script src="/scripts/jquery-2.0.3.min.js" type="text/javascript"></script>
+        <script src="/scripts/hilitor.js"></script>
+        <script src="/scripts/Document.js"></script>
+        <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
+        <script src="/scripts/jquery-migrate/jquery-migrate-1.0.0.js" type="text/javascript"></script>
+        <script src="/scripts/acura.js" type="text/javascript"></script>
+        <script src="/scripts/tipsy/jquery.tipsy.js" type="text/javascript"></script>
+        <link href="/scripts/tipsy/tipsy.css" rel="stylesheet" type="text/css">
+        <script src="/scripts/maskedinput/jquery.maskedinput.min.js" type="text/javascript"></script>
+        <script src="/scripts/autosize/jquery.autosize.min.js" type="text/javascript"></script>
+        <script src="/scripts/nobleCount/jquery.NobleCount.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="/scripts/uniform/theme/css/uniform.default.min.css">
+        <script src="/scripts/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+        <script src="/scripts/jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="/Scripts/jquery-ui-1.10.3/css/no-theme/jquery-ui-1.10.3.custom.css">
+        <script src="/scripts/tagsinput/jquery.tagsinput.min.js"></script>
+        <link rel="stylesheet" href="/Scripts/tagsinput/jquery.tagsinput.css">
+        <!-- flot -->
+        <%--<script src="/scripts/flot/jquery.flot.min.js"></script>
+    <script src="/scripts/flot/jquery.flot.resize.js"></script>
+    <script src="/Scripts/flot/jquery.flot.time.js"></script>
+    <script src="/scripts/flot/jquery.flot.threshold.js"></script>
+    <script src="/scripts/flot/jquery.flot.pie.js"></script>
+    <script src="/scripts/flot/jquery.flot.stack.js"></script>--%>
+        <script src="/scripts/colResizable/colResizable-1.3.js"></script>
+        <!-- Datatable -->
+        <link href="/Content/DataTables-1.9.4/media/css/jquery.dataTables.css" rel="stylesheet"
+            type="text/css" />
+        <script src="/scripts/DataTables-1.9.4/media/js/jquery.dataTables.min.js" type="text/javascript"></script>
+        <script src="/scripts/fullcalendar/fullcalendar.min.js"></script>
+        <link rel="stylesheet" href="/Scripts/fullcalendar/fullcalendar.css">
+
+        <script src="/scripts/jquery-knob/jquery.knob.js"></script>
+        <script src="/scripts/bxSlider/jquery.bxslider.min.js"></script>
+        <link href="/scripts/bxSlider/jquery.bxslider.css" rel="stylesheet">
+
+        <link rel="stylesheet" href="/scripts/circleSlider/css/website.css" />
+        <script src="/scripts/circleSlider/js/jquery.tinycircleslider.min.js"></script>
+        <!-- Highlight.js -->
+        <%--<script src="/scripts/highlight.js/highlight.pack.js"></script>--%>
+        <!-- Bootstrap -->
+        <script src="/Scripts/bootstrap.min.js" type="text/javascript"></script>
+        <script src="/Scripts/bootstrap-datepicker.min.js" type="text/javascript"></script>
+        <!-- LumexTech JS -->
+        <script src="/scripts/chosen.jquery.min.js" type="text/javascript"></script>
+        <script src="/Scripts/JSLib.js" type="text/javascript"></script>
+        <script src="/Scripts/PasswordStrength.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            // function showsubmenu(clickeditem, menuid) {
+
+            //            $('nav.nav-sidebar ul').hide();
+            //            $('nav.nav-sidebar ul#' + menuid).show();
+            //            $('div.top-nav ul li a').removeClass('on');
+            //            $(clickeditem).addClass("on");
+            // console.log($(clickeditem + ' a'));//.addClass('on');
+
+            //             $.ajax({
+            //                type: "POST",
+            //                url: "/AutoCompletePage.aspx/GetDemoAccessibility",
+            //                data: "{'App':'" + menuid + "'}",
+            //                contentType: "application/json; charset=utf-8",
+            //                dataType: "json",
+            //                success: function (data) {
+            //                    var val = data.d;
+            //                    $("#loadingImg").hide();
+
+            //                    if (val == "Done") {
+            //                        $("#processSuccess").show();
+            //                        $("#successMessageLabel").text("Request Send Succesfully...");
+            //                    } else if (val == "Not Done") {
+            //                        $("#divMessageBody").show();
+            //                        alert("failed");
+            //                    }
+            //                    else if (val == "Please Fill all TextBox..") {
+            //                        $("#divMessageBody").show();
+            //                        alert(val);
+            //                    }
+
+
+            //                    //alert(val);
+            //                }
+            //            });
+            //        });
+            //            return false;
+            //        }
+            //        $("#btnSend").click(function () {
+            //            var name = $("#txtbxName").val();
+            //            var companyName = $("#txtbxCompanyName").val();
+            //            var contact = $("#txtbxContact").val();
+            //            var message = $("#txtbxMassage").val();
+
+            //            $("#divMessageBody").hide();
+            //            $("#loadingImg").show();
+
+            //            $.ajax({
+            //                type: "POST",
+            //                url: "/Login.aspx/GetDemoAccessibility",
+            //                data: "{'name':'" + name + "','companyName':'" + companyName + "','contact':'" + contact + "','message':'" + message + "'}",
+            //                contentType: "application/json; charset=utf-8",
+            //                dataType: "json",
+            //                success: function (data) {
+            //                    var val = data.d;
+            //                    $("#loadingImg").hide();
+
+            //                    if (val == "Done") {
+            //                        $("#processSuccess").show();
+            //                        $("#successMessageLabel").text("Request Send Succesfully...");
+            //                    } else if (val == "Not Done") {
+            //                        $("#divMessageBody").show();
+            //                        alert("failed");
+            //                    }
+            //                    else if (val == "Please Fill all TextBox..") {
+            //                        $("#divMessageBody").show();
+            //                        alert(val);
+            //                    }
+
+
+            //                    //alert(val);
+            //                }
+            //            });
+            //      });
+            //hljs.initHighlightingOnLoad();
+        </script>
+        <asp:ContentPlaceHolder ID="scriptContentPlaceHolder" runat="server">
+        </asp:ContentPlaceHolder>
+    </form>
+</body>
+</html>

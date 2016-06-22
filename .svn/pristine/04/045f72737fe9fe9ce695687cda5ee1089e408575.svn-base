@@ -1,0 +1,260 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.PaymentSchedule
+{
+    public partial class PaymentSchedule : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!IsPostBack)
+                {
+                    if (ddlWHorSC.SelectedValue.ToString() == "SC")
+                    {
+                        LoadSalesCenters();
+                    }
+                    else
+                    {
+                        LoadWarehouses();
+                    }
+                    LoadPaymentScheduleList();
+                }
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
+
+        private void LoadPaymentScheduleList()
+        {
+            try
+            {
+                PaymentScheduleBLL paymentScheduleBll=new PaymentScheduleBLL();
+                DataTable dt=new DataTable();
+                dt = paymentScheduleBll.GetPaymentScheduleList();
+                if (dt.Rows.Count > 0)
+                {
+                    paymentScheduleListGridView.DataSource = dt;
+                    paymentScheduleListGridView.DataBind();
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Payment Schudule List Empty!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+               
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                ddlSelectWareHouseOrSalesCenter.DataSource = dt;
+                ddlSelectWareHouseOrSalesCenter.DataValueField = "SalesCenterId";
+                ddlSelectWareHouseOrSalesCenter.DataTextField = "SalesCenterName";
+                ddlSelectWareHouseOrSalesCenter.DataBind();
+                //ddlSelectWareHouseOrSalesCenter.Items.Insert(0, "Select Please");
+                ddlSelectWareHouseOrSalesCenter.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+        protected void LoadWarehouses()
+        {
+            WarehouseBLL warehouse = new WarehouseBLL();
+
+            try
+            {
+                DataTable dt = warehouse.GetActiveWarehouseListByUser();
+
+                ddlSelectWareHouseOrSalesCenter.DataSource = dt;
+                ddlSelectWareHouseOrSalesCenter.DataValueField = "WarehouseId";
+                ddlSelectWareHouseOrSalesCenter.DataTextField = "WarehouseName";
+                ddlSelectWareHouseOrSalesCenter.DataBind();
+                //ddlSelectWareHouseOrSalesCenter.Items.Insert(0, "Select Please");
+                ddlSelectWareHouseOrSalesCenter.SelectedIndex = 0;
+                //ddlSelectWareHouseOrSalesCenter.SelectedValue = LumexSessionManager.Get("UserWareHouseId").ToString();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                warehouse = null;
+            }
+        }
+        protected void LoadActiveCustomerList()
+        {
+            CustomerBLL customer = new CustomerBLL();
+
+            try
+            {
+                DataTable dt = customer.GetActiveCustomerList();
+
+                customerIdDropDownList.DataSource = dt;
+                customerIdDropDownList.DataValueField = "CustomerId";
+                customerIdDropDownList.DataTextField = "CustomerIdName";
+                customerIdDropDownList.DataBind();
+                customerIdDropDownList.Items.Insert(0, "");
+                customerIdDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                customer = null;
+            }
+        }
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void saveButton_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (customerIdDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Customer field is required.";
+                }
+                else if (txtbxService.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Service Amount field is required.";
+                }
+                else if (scheduleDateTextBox.Text == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Schedule Date field is required.";
+                }
+                else
+                {
+                    PaymentScheduleBLL scheduleBll=new PaymentScheduleBLL();
+                    scheduleBll.SCWHId = ddlSelectWareHouseOrSalesCenter.SelectedValue;
+                    scheduleBll.CustomerId = customerIdDropDownList.SelectedValue;
+                    scheduleBll.ServiceAmount = Convert.ToDecimal(txtbxService.Text.Trim());
+                    scheduleBll.ScheduleDate = LumexLibraryManager.ParseAppDate(scheduleDateTextBox.Text);
+
+                    if (!CheckDuplicateScheduleEntry(scheduleBll.SCWHId, scheduleBll.CustomerId))
+                    {
+                        DataTable dt = scheduleBll.SavePaymentSchedule();
+                        if (dt.Rows.Count > 0)
+                        {
+                            string message =
+                                    "Payment Schedule <span class='actionTopic'>Created</span> Successfully with Payment ID: <span class='actionTopic'>" +
+                                    dt.Rows[0][0].ToString() + "</span>.";
+                            MyAlertBox(
+                                "var callbackOk = function () { MyOverlayStart(); window.location = \"/\"; }; SuccessAlert(\"" +
+                                "Process Succeed" + "\", \"" + message + "\");");
+                            LoadPaymentScheduleList();
+                        }
+                        else
+                        {
+                            string message =
+                                    "Payment Schedule <span class='actionTopic'>Failed!!!!</span>";
+                            MyAlertBox(
+                                "var callbackOk = function () { MyOverlayStart(); window.location = \"/\"; }; SuccessAlert(\"" +
+                                "Process Succeed" + "\", \"" + message + "\");");
+                        }
+
+                    }
+                    else
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Payment Schedule Has Already Been Saved!!!";
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
+
+        private bool CheckDuplicateScheduleEntry(string SCWHId, string CustomerId)
+        {
+            try
+            {
+                bool status = false;
+                PaymentScheduleBLL scheduleBll=new PaymentScheduleBLL();
+                DataTable dt=scheduleBll.CheckSchduleEntry(SCWHId,CustomerId);
+                if (dt.Rows.Count > 0)
+                {
+                    status = true;
+                }
+                else
+                {
+                    status = false;
+                }
+                return status;
+
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
+
+        protected void updateButton_OnClick(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected void ddlWHorSC_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (ddlWHorSC.SelectedValue.ToString() == "SC")
+                {
+                    LoadSalesCenters();
+                }
+                else
+                {
+                    LoadWarehouses();
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+       
+
+
+    }
+}

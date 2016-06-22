@@ -1,0 +1,326 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App.Master" AutoEventWireup="true" CodeBehind="Create.aspx.cs" EnableEventValidation="false" Inherits="lmxIpos.UI.Book.Create" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="headContentPlaceHolder" runat="server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="bodyContentPlaceHolder" runat="server">
+    <div class="data">
+        <div class="grid-12">
+            <div id="msgbox" runat="server" visible="false" class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">
+                    &times;</button>
+                <h4>
+                    <asp:Label ID="msgTitleLabel" runat="server" Text=""></asp:Label>
+                </h4>
+                <asp:Label ID="msgDetailLabel" runat="server" Text=""></asp:Label>
+            </div>
+            <div class="grid-title text-center">
+                <h3 class="text-center" style="margin-top: 0px;">MUHAMMADIYA <span class="semi-bold">LIBRARY</span></h3>
+                <br />
+                <br />
+
+            </div>
+            <div class="widget">
+                <div class="widget-body no-padding">
+                    <div class="grid-12">
+                        <div class="widget-separator grid-4" style="border-right: none;">
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label20" runat="server" Text=" নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxNo" CssClass=" form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label18" runat="server" Text=" কিতাবের সিরিয়াল নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxKitaberSerialNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label19" runat="server" Text=" আলমারি নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxAlmariNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label4" runat="server" Text="তাক নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxTakNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label5" runat="server" Text="কলাম নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxKolamNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label6" runat="server" Text="কিতাব নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxKitabNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label7" runat="server" Text="কপি সংখ্যা" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxCopyNumber" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label8" runat="server" Text="মোট ভলিউম নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxTotalVolume" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label1" runat="server" Text="ভলিউম নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxVolumeNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label9" runat="server" Text="খণ্ড নং" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxKhondoNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label10" runat="server" Text="পৃষ্ঠা সংখ্যা" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxPageNo" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                    <asp:Label ID="Label11" runat="server" Text="মূল্য" CssClass="font-size"></asp:Label>
+                                </div>
+                                <div class="pull-right">
+                                    <asp:TextBox ID="txtbxPrice" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="widget-separator grid-4" style="border-right: none;">
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label17" runat="server" Text="কিতাবের মুল নাম" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxKitaberMainName" TextMode="MultiLine" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label2" runat="server" Text="কিতাবের মাশহুর নাম" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxKitaberSpecialName" TextMode="MultiLine" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label3" runat="server" Text="লিখক" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxWritter" TextMode="MultiLine" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label12" runat="server" Text="লিখকের জন্ম সন" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxWritterBornDate" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label13" runat="server" Text="লিখকের ইন্তিকাল" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxWritterDeathDate" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label14" runat="server" Text="লিখকের মাজহাব" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxWritterMajhab" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label15" runat="server" Text="সংকলক" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxSongkolp" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label16" runat="server" Text="অনুবাদক" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxTranslator" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label21" runat="server" Text="অনুবাদকের জন্ম ও ইন্তেকাল" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxTranslatorsDate" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label22" runat="server" Text="অনুবাদকের মাজহাব" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxTranslatorMajhab" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="widget-separator grid-4" style="border-right: none;">
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label23" runat="server" Text="কিতাবের মুল ভাষা " CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right col-lg-7">
+                                <asp:DropDownList ID="ddlMainLanguage" CssClass="form-control select-size" runat="server">
+                                    <asp:ListItem Value="">Select.... </asp:ListItem>
+                                    <asp:ListItem Value="B"> বাংলা </asp:ListItem>
+                                    <asp:ListItem Value="E"> ইংরেজি</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                
+                            <div class="pull-left">
+                                <asp:Label ID="Label24" runat="server" Text=" অনুদিত ভাষা" CssClass="font-size "></asp:Label>
+                            </div>
+                            <div class="pull-right col-lg-7">
+                                <asp:DropDownList ID="ddlTranslatedLanguage" runat="server" CssClass="form-control select-size">
+                                    <asp:ListItem Value="">Select.... </asp:ListItem>
+                                    <asp:ListItem Value="B"> বাংলা </asp:ListItem>
+                                    <asp:ListItem Value="E"> ইংরেজি</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label25" runat="server" Text="বিষয়" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxSubject" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label26" runat="server" Text="অদ্ধায়/পরিচ্ছেদ" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxChapter" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label27" runat="server" Text="প্রকাশক" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxProkashok" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label28" runat="server" Text="প্রকাশকাল" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxProkashkal" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                 <div class="pull-left">
+                                <asp:Label ID="Label29" runat="server" Text="প্রকাশনী" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxProkashoni" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label30" runat="server" Text="প্রকাশ স্থান" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxProkashsthan" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label31" runat="server" Text="সম্পাদনা" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxSompadona" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                 <div class="pull-left">
+                                <asp:Label ID="Label32" runat="server" Text="সংস্করণ" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxSongokoron" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label33" runat="server" Text="সার সংখেপ/সূচী" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxSarSonkhep" TextMode="MultiLine" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                            <div class="grid-12">
+                                <div class="pull-left">
+                                <asp:Label ID="Label34" runat="server" Text="মন্তব্য" CssClass="font-size"></asp:Label>
+                            </div>
+                            <div class="pull-right">
+                                <asp:TextBox ID="txtbxComment" TextMode="MultiLine" CssClass="  form-control custom-input" runat="server"></asp:TextBox>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-control text-center">
+                        <asp:Button ID="btnSave" CssClass="btn btn-info" runat="server" Text="Save" OnClick="btnSave_OnClick"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</asp:Content>
+<asp:Content ID="Content3" ContentPlaceHolderID="scriptContentPlaceHolder" runat="server">
+</asp:Content>

@@ -1,0 +1,544 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.ProductRequisition
+{
+    public partial class CreateRequisition : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            msgbox.Visible = false;
+
+            if (!IsPostBack)
+            {
+                checkedRowCountHiddenField.Value = "0";
+
+                LoadSalesCenters();
+                LoadWareHouses();
+                // GetActiveProducts();
+            }
+
+            if (productListGridView.Rows.Count > 0)
+            {
+                productListGridView.UseAccessibleHeader = true;
+                productListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+
+            if (selectedProductListGridView.Rows.Count > 0)
+            {
+                selectedProductListGridView.UseAccessibleHeader = true;
+                selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+        }
+
+        private void LoadWareHouses()
+        {
+
+            WarehouseBLL warehouseBll = new WarehouseBLL();
+
+            try
+            {
+                DataTable dt = warehouseBll.GetActiveWarehouseListByUser();
+
+                WarehouesDropDownList.DataSource = dt;
+                WarehouesDropDownList.DataValueField = "WarehouseId";
+                WarehouesDropDownList.DataTextField = "WarehouseName";
+                WarehouesDropDownList.DataBind();
+                WarehouesDropDownList.Items.Insert(0, "Select please...");
+                WarehouesDropDownList.Items[0].Value = "";
+                WarehouesDropDownList.SelectedIndex = 0;
+                // salesCenterDropDownList.SelectedValue = LumexSessionManager.Get("UserSalesCenterId").ToString();
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                warehouseBll = null;
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                salesCenterDropDownList.DataSource = dt;
+                salesCenterDropDownList.DataValueField = "SalesCenterId";
+                salesCenterDropDownList.DataTextField = "SalesCenterName";
+                salesCenterDropDownList.DataBind();
+                salesCenterDropDownList.Items.Insert(0, "Select please...");
+                salesCenterDropDownList.SelectedIndex = 0;
+                // salesCenterDropDownList.SelectedValue = LumexSessionManager.Get("UserSalesCenterId").ToString();
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+
+
+        protected void GetActiveProducts(string id)
+        {
+            ProductBLL product = new ProductBLL();
+
+            try
+            {
+                DataTable dt = product.GetActiveProducts();
+                productListGridView.DataSource = dt;
+                productListGridView.DataBind();
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Data Not Found!!!"; msgDetailLabel.Text = "";
+                }
+                else
+                {
+                    productListGridView.UseAccessibleHeader = true;
+                    productListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                product = null;
+            }
+        }
+
+        protected void addSelectedProductButton_Click(object sender, EventArgs e)
+        {
+            AddNewProductInList();
+        }
+
+        protected void AddNewProductInList()
+        {
+            DataTable dt = new DataTable();
+            DataRow dr = null;
+
+            try
+            {
+                dt.Columns.Add(new DataColumn("Barcode"));
+                dt.Columns.Add(new DataColumn("ProductId"));
+                dt.Columns.Add(new DataColumn("ProductName"));
+                dt.Columns.Add(new DataColumn("Unit"));
+                dt.Columns.Add(new DataColumn("RequisitionQuantity"));
+                dt.Columns.Add(new DataColumn("RequiredDate"));
+                dt.Columns.Add(new DataColumn("ProductNarration"));
+
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    dr = dt.NewRow();
+
+                    dr["Barcode"] = selectedProductListGridView.Rows[i].Cells[0].Text.ToString();
+                    dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                    dr["ProductName"] = selectedProductListGridView.Rows[i].Cells[2].Text.ToString();
+                    dr["Unit"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+
+                    TextBox requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requisitionQuantityTextBox");
+                    dr["RequisitionQuantity"] = requisitionQuantityTextBox.Text.Trim();
+
+                    TextBox requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requiredDateTextBox");
+                    dr["RequiredDate"] = requiredDateTextBox.Text.Trim();
+
+                    TextBox productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("productNarrationTextBox");
+                    dr["ProductNarration"] = productNarrationTextBox.Text.Trim();
+
+                    dt.Rows.Add(dr);
+                }
+
+                int previousRowcount = dt.Rows.Count;
+
+                for (int i = 0; i < productListGridView.Rows.Count; i++)
+                {
+                    CheckBox chkbx = (CheckBox)productListGridView.Rows[i].FindControl("selectCheckBox");
+
+                    if (chkbx.Checked && !CheckAddedProduct(productListGridView.Rows[i].Cells[1].Text.ToString()))
+                    {
+                        dr = dt.NewRow();
+
+                        dr["Barcode"] = productListGridView.Rows[i].Cells[0].Text.ToString();
+                        dr["ProductId"] = productListGridView.Rows[i].Cells[1].Text.ToString();
+                        dr["ProductName"] = productListGridView.Rows[i].Cells[2].Text.ToString();
+                        dr["Unit"] = productListGridView.Rows[i].Cells[3].Text.ToString();
+                        dr["RequisitionQuantity"] = string.Empty;
+                        dr["RequiredDate"] = string.Empty;
+                        dr["ProductNarration"] = string.Empty;
+
+                        dt.Rows.Add(dr);
+                    }
+                }
+
+                selectedProductListGridView.DataSource = dt;
+                selectedProductListGridView.DataBind();
+
+                for (int i = 0; i < previousRowcount; i++)
+                {
+                    TextBox requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requisitionQuantityTextBox");
+                    requisitionQuantityTextBox.Text = dt.Rows[i]["RequisitionQuantity"].ToString();
+
+                    TextBox requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requiredDateTextBox");
+                    requiredDateTextBox.Text = dt.Rows[i]["RequiredDate"].ToString();
+
+                    TextBox productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("productNarrationTextBox");
+                    productNarrationTextBox.Text = dt.Rows[i]["ProductNarration"].ToString();
+                }
+
+                if (selectedProductListGridView.Rows.Count > 0)
+                {
+                    selectedProductListGridView.UseAccessibleHeader = true;
+                    selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                    saveButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                dt.Dispose();
+                dr = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected bool CheckAddedProduct(string productBarcodeIdName)
+        {
+            bool status = false;
+
+            try
+            {
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    if (selectedProductListGridView.Rows[i].Cells[0].Text.ToString() == productBarcodeIdName || selectedProductListGridView.Rows[i].Cells[1].Text.ToString() == productBarcodeIdName || selectedProductListGridView.Rows[i].Cells[2].Text.ToString() == productBarcodeIdName)
+                    {
+                        status = true;
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+
+            return status;
+        }
+
+        protected void addProductButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string productBarcodeIdName = productTextBox.Text.Trim();
+
+                if (string.IsNullOrEmpty(productBarcodeIdName))
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = "Write Product Barcode or ID or Name to search.";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+                else
+                {
+                    if (CheckAddedProduct(productTextBox.Text.Trim()))
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = "This product already added in the selected product list.";
+                        msgbox.Attributes.Add("class", "alert alert-warning");
+                    }
+                    else
+                    {
+                        for (int j = 0; j < productListGridView.Rows.Count; j++)
+                        {
+                            if (productListGridView.Rows[j].Cells[0].Text.ToString() == productBarcodeIdName || productListGridView.Rows[j].Cells[1].Text.ToString() == productBarcodeIdName || productListGridView.Rows[j].Cells[2].Text.ToString() == productBarcodeIdName)
+                            {
+                                DataTable dt = new DataTable();
+                                DataRow dr = null;
+
+                                dt.Columns.Add(new DataColumn("Barcode"));
+                                dt.Columns.Add(new DataColumn("ProductId"));
+                                dt.Columns.Add(new DataColumn("ProductName"));
+                                dt.Columns.Add(new DataColumn("Unit"));
+                                dt.Columns.Add(new DataColumn("RequisitionQuantity"));
+                                dt.Columns.Add(new DataColumn("RequiredDate"));
+                                dt.Columns.Add(new DataColumn("ProductNarration"));
+
+                                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                                {
+                                    dr = dt.NewRow();
+
+                                    dr["Barcode"] = selectedProductListGridView.Rows[i].Cells[0].Text.ToString();
+                                    dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                                    dr["ProductName"] = selectedProductListGridView.Rows[i].Cells[2].Text.ToString();
+                                    dr["Unit"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+
+                                    TextBox requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requisitionQuantityTextBox");
+                                    dr["RequisitionQuantity"] = requisitionQuantityTextBox.Text.Trim();
+
+                                    TextBox requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requiredDateTextBox");
+                                    dr["RequiredDate"] = requiredDateTextBox.Text.Trim();
+
+                                    TextBox productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("productNarrationTextBox");
+                                    dr["ProductNarration"] = productNarrationTextBox.Text.Trim();
+
+                                    dt.Rows.Add(dr);
+                                }
+
+                                int previousRowcount = dt.Rows.Count;
+
+                                dr = dt.NewRow();
+                                dr["Barcode"] = productListGridView.Rows[j].Cells[0].Text.ToString();
+                                dr["ProductId"] = productListGridView.Rows[j].Cells[1].Text.ToString();
+                                dr["ProductName"] = productListGridView.Rows[j].Cells[2].Text.ToString();
+                                dr["Unit"] = productListGridView.Rows[j].Cells[3].Text.ToString();
+                                dr["RequisitionQuantity"] = string.Empty;
+                                dr["RequiredDate"] = string.Empty;
+                                dr["ProductNarration"] = string.Empty;
+                                dt.Rows.Add(dr);
+
+                                selectedProductListGridView.DataSource = dt;
+                                selectedProductListGridView.DataBind();
+
+                                for (int i = 0; i < previousRowcount; i++)
+                                {
+                                    TextBox requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requisitionQuantityTextBox");
+                                    requisitionQuantityTextBox.Text = dt.Rows[i]["RequisitionQuantity"].ToString();
+
+                                    TextBox requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requiredDateTextBox");
+                                    requiredDateTextBox.Text = dt.Rows[i]["RequiredDate"].ToString();
+
+                                    TextBox productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("productNarrationTextBox");
+                                    productNarrationTextBox.Text = dt.Rows[i]["ProductNarration"].ToString();
+                                }
+
+                                if (selectedProductListGridView.Rows.Count > 0)
+                                {
+                                    selectedProductListGridView.UseAccessibleHeader = true;
+                                    selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                                    saveButton.Enabled = true;
+                                }
+                                else
+                                {
+                                    saveButton.Enabled = false;
+                                }
+
+                                CheckBox chkbx = (CheckBox)productListGridView.Rows[j].FindControl("selectCheckBox");
+                                chkbx.Checked = true;
+                                checkedRowCountHiddenField.Value = (int.Parse(checkedRowCountHiddenField.Value) + 1).ToString();
+
+                                productBarcodeIdName = "added";
+                                break;
+                            }
+                        }
+
+                        if (productBarcodeIdName != "added")
+                        {
+                            msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Product not found.";
+                        }
+                        productTextBox.Text = "";
+                        productTextBox.Focus();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void saveButton_Click(object sender, EventArgs e)
+        {
+            string msg = string.Empty;
+
+            List<ProductRequisitionBLL> productRequisitions = new List<ProductRequisitionBLL>();
+            ProductRequisitionBLL productRequisition;
+            decimal quantity = 0;
+            TextBox requisitionQuantityTextBox;
+            TextBox requiredDateTextBox;
+            TextBox productNarrationTextBox;
+            int i = 0;
+
+            try
+            {
+                if (salesCenterDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Sales Center Name field is required.";
+                }
+                else
+                {
+                    for (i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                    {
+                        requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].Cells[4].FindControl("requisitionQuantityTextBox");
+                        requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].Cells[5].FindControl("requiredDateTextBox");
+                        productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].Cells[6].FindControl("productNarrationTextBox");
+
+                        if (!string.IsNullOrEmpty(requisitionQuantityTextBox.Text.Trim()) && decimal.TryParse(requisitionQuantityTextBox.Text.Trim(), out quantity))
+                        {
+                            quantity = decimal.Parse(requisitionQuantityTextBox.Text.Trim());
+
+                            productRequisition = new ProductRequisitionBLL();
+
+                            productRequisition.ProductId = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                            productRequisition.RequisitionQuantity = quantity.ToString();
+                            productRequisition.RequiredDate = LumexLibraryManager.ParseAppDate(requiredDateTextBox.Text.ToString());
+                            productRequisition.ProductNarration = productNarrationTextBox.Text.ToString();
+                            productRequisitions.Add(productRequisition);
+                        }
+                        else
+                        {
+                            msg = "Product ID [" + selectedProductListGridView.Rows[i].Cells[1].Text.ToString() + "] has no valid quantity.";
+                            msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = msg;
+                            return;
+                        }
+                    }
+
+                    if (productRequisitions.Count > 0)
+                    {
+                        productRequisition = new ProductRequisitionBLL();
+
+                        string productRequisitionId = productRequisition.SaveProductRequisition(productRequisitions, salesCenterDropDownList.SelectedValue.Trim(), WarehouesDropDownList.SelectedValue.Trim(), drpdwnRequisationTo.SelectedValue.Trim(), narrationTextBox.Text.Trim());
+
+                        string message = "Product Requisition <span class='actionTopic'>Created</span> Successfully Product Requisition ID: <span class='actionTopic'>" + productRequisitionId + "</span>.";
+                        MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/ProductRequisition/RequisitionList.aspx\"; }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+
+                        //MyAlertBox("alert(\"Product Requisition Created Successfully with Product Requisition ID: " + productRequisitionId + " \"); window.location=\"/UI/ProductRequisition/RequisitionList.aspx\"");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                productRequisition = null;
+                productRequisitions = null;
+            }
+        }
+
+        protected void removeLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                GridViewRow gvRow = (GridViewRow)(sender as Control).Parent.Parent;
+                int index = gvRow.RowIndex;
+
+                string productId = selectedProductListGridView.Rows[index].Cells[1].Text.ToString();
+
+                DataTable dt = new DataTable();
+                DataRow dr = null;
+
+                dt.Columns.Add(new DataColumn("Barcode"));
+                dt.Columns.Add(new DataColumn("ProductId"));
+                dt.Columns.Add(new DataColumn("ProductName"));
+                dt.Columns.Add(new DataColumn("Unit"));
+                dt.Columns.Add(new DataColumn("RequisitionQuantity"));
+                dt.Columns.Add(new DataColumn("RequiredDate"));
+                dt.Columns.Add(new DataColumn("ProductNarration"));
+
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    dr = dt.NewRow();
+
+                    dr["Barcode"] = selectedProductListGridView.Rows[i].Cells[0].Text.ToString();
+                    dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                    dr["ProductName"] = selectedProductListGridView.Rows[i].Cells[2].Text.ToString();
+                    dr["Unit"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+
+                    TextBox requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requisitionQuantityTextBox");
+                    dr["RequisitionQuantity"] = requisitionQuantityTextBox.Text.Trim();
+
+                    TextBox requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requiredDateTextBox");
+                    dr["RequiredDate"] = requiredDateTextBox.Text.Trim();
+
+                    TextBox productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("productNarrationTextBox");
+                    dr["ProductNarration"] = productNarrationTextBox.Text.Trim();
+
+                    dt.Rows.Add(dr);
+                }
+
+                for (int i = 0; i < productListGridView.Rows.Count; i++)
+                {
+                    if (productListGridView.Rows[i].Cells[1].Text.ToString() == productId)
+                    {
+                        CheckBox chkbx = (CheckBox)productListGridView.Rows[i].FindControl("selectCheckBox");
+                        chkbx.Checked = false;
+
+                        CheckBox allchkbx = (CheckBox)productListGridView.HeaderRow.FindControl("allCheckBox");
+                        allchkbx.Checked = false;
+                        checkedRowCountHiddenField.Value = (int.Parse(checkedRowCountHiddenField.Value) - 1).ToString();
+
+                        break;
+                    }
+                }
+
+                dt.Rows.RemoveAt(index);
+                selectedProductListGridView.DataSource = dt;
+                selectedProductListGridView.DataBind();
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    TextBox requisitionQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requisitionQuantityTextBox");
+                    requisitionQuantityTextBox.Text = dt.Rows[i]["RequisitionQuantity"].ToString();
+
+                    TextBox requiredDateTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("requiredDateTextBox");
+                    requiredDateTextBox.Text = dt.Rows[i]["RequiredDate"].ToString();
+
+                    TextBox productNarrationTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("productNarrationTextBox");
+                    productNarrationTextBox.Text = dt.Rows[i]["ProductNarration"].ToString();
+                }
+
+                if (selectedProductListGridView.Rows.Count > 0)
+                {
+                    selectedProductListGridView.UseAccessibleHeader = true;
+                    selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                    saveButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void salesCenterDropDownList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                GetActiveProducts(salesCenterDropDownList.SelectedValue);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+}

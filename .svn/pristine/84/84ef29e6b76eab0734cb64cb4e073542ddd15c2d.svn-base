@@ -1,0 +1,178 @@
+﻿using System;
+using System.Data;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace Lumex.Project.DAL
+{
+    public class PurchaseRecordDAL
+    {
+        public string SavePurchaseRecord(PurchaseRecordBLL purchaseRecord, DataTable dtPrdList, LumexDBPlayer db)
+        {
+            string purchaseRecordId = "";
+
+            try
+            {
+                db.AddParameters("@AccountId", purchaseRecord.AccountId.Trim());
+                db.AddParameters("@WarehouseId", purchaseRecord.WarehouseId.Trim());
+                db.AddParameters("@PurchaseRequisitionId", purchaseRecord.PurchaseRequisitionId.Trim());
+                db.AddParameters("@PurchaseOrderId", purchaseRecord.PurchaseOrderId.Trim());
+                db.AddParameters("@VendorId", purchaseRecord.VendorId.Trim());
+                db.AddParameters("@VendorOrderDate", purchaseRecord.VendorOrderDate.Trim());
+                db.AddParameters("@VendorOrderNumber", purchaseRecord.VendorOrderNumber.Trim());
+                db.AddParameters("@VendorInvoiceNumber", purchaseRecord.VendorInvoiceNumber.Trim());
+                db.AddParameters("@ReceivedDate", purchaseRecord.ReceivedDate.Trim());
+                db.AddParameters("@TotalAmount", purchaseRecord.TotalAmount.Trim());
+                //db.AddParameters("@VAT", purchaseRecord.VAT.Trim());
+                db.AddParameters("@DiscountAmount", purchaseRecord.DiscountAmount.Trim());
+                db.AddParameters("@TotalPayable", purchaseRecord.TotalPayable.Trim());
+                db.AddParameters("@PaidAmount", purchaseRecord.PaidAmount.Trim());
+                db.AddParameters("@TransportCost", purchaseRecord.TransportCost.Trim());
+                db.AddParameters("@Narration", purchaseRecord.Narration.Trim());
+                db.AddParameters("@LCNumber", purchaseRecord.LCNumber.Trim());
+                db.AddParameters("@TransportType", purchaseRecord.TransportType.Trim());
+                db.AddParameters("@ShippingAddress", purchaseRecord.ShippingAddress.Trim());
+                db.AddParameters("@BillingAddress", purchaseRecord.BillingAddress.Trim());
+                db.AddParameters("@PaymentMode", purchaseRecord.PaymentMode.Trim());
+                db.AddParameters("@Bank", purchaseRecord.Bank.Trim());
+                db.AddParameters("@BankBranch", purchaseRecord.BankBranch.Trim());
+                db.AddParameters("@ChequeNumber", purchaseRecord.ChequeNumber.Trim());
+                db.AddParameters("@ChequeDate", purchaseRecord.ChequeDate.Trim());
+                db.AddParameters("@CreatedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@CreatedFrom", LumexLibraryManager.GetTerminal());
+
+                DataTable dt = db.ExecuteDataTable("INSERT_PURCHASE_RECORD", true);
+
+                if (dt.Rows.Count > 0)
+                {
+                    purchaseRecordId = dt.Rows[0][0].ToString();
+                }
+
+                for (int i = 0; i < dtPrdList.Rows.Count; i++)
+                {
+                    db.ClearParameters();
+                    db.AddParameters("@WarehouseId", purchaseRecord.WarehouseId.Trim());
+                    db.AddParameters("@PurchaseRecordId", purchaseRecordId.Trim());
+                    db.AddParameters("@ProductId", dtPrdList.Rows[i]["ProductId"].ToString());
+                    db.AddParameters("@Quantity", dtPrdList.Rows[i]["Quantity"].ToString());
+                    db.AddParameters("@Amount", dtPrdList.Rows[i]["Amount"].ToString());
+                    db.AddParameters("@RatePerUnit", dtPrdList.Rows[i]["RatePerUnit"].ToString());
+                    db.AddParameters("@UnitPrice", dtPrdList.Rows[i]["UnitPrice"].ToString());
+                    db.AddParameters("@Status", dtPrdList.Rows[i]["Status"].ToString());
+                    db.AddParameters("@Narration", dtPrdList.Rows[i]["Narration"].ToString());
+
+                    db.ExecuteNonQuery("INSERT_PURCHASE_RECORD_PRODUCT", true);
+                }
+
+                db.ClearParameters();
+                db.AddParameters("@PurchaseOrderId", purchaseRecord.PurchaseOrderId.Trim());
+                db.AddParameters("@Status", purchaseRecord.Status.Trim());
+
+                db.ExecuteNonQuery("UPDATE_PURCHASE_ORDER_STATUS_BY_ID", true);
+
+                return purchaseRecordId;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                purchaseRecord = null;
+                dtPrdList = null;
+            }
+        }
+
+        public DataTable GetPurchaseRecordsListByWarehouseDateRangeAndStatus(string warehouseId, string fromDate, string toDate, string status, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@WarehouseId", warehouseId.Trim());
+                db.AddParameters("@FromDate", fromDate.Trim());
+                db.AddParameters("@ToDate", toDate.Trim());
+                db.AddParameters("@Status", status.Trim());
+
+                DataTable dt = db.ExecuteDataTable("GET_PURCHASE_RECORDS_BY_WAREHOUSE_DATE_RANGE_AND_STATUS", true);
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetPurchaseRecordsApprovalListByWarehouse(string warehouseId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@WarehouseId", warehouseId.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_PURCHASE_RECORD_APPROVAL_LIST_BY_WAREHOUSE", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetPurchaseRecordById(string purchaseRecordId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@PurchaseRecordId", purchaseRecordId.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_PURCHASE_RECORD_BY_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetPurchaseRecordProductListById(string purchaseRecordId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@PurchaseRecordId", purchaseRecordId.Trim());
+                DataTable dt = db.ExecuteDataTable("GET_PURCHASE_RECORD_PRODUCT_LIST_BY_ID", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void ApprovePurchaseRecord(string warehouseId, string purchaseRecordId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@WarehouseId", warehouseId.Trim());
+                db.AddParameters("@PurchaseRecordId", purchaseRecordId.Trim());
+                db.AddParameters("@ApprovedBy", LumexSessionManager.Get("ActiveUserId").ToString());
+                db.AddParameters("@ApprovedFrom", LumexLibraryManager.GetTerminal());
+
+                db.ExecuteNonQuery("APPROVE_PURCHASE_RECORD", true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        internal DataTable GetPurchaseRecordProductListByIdForReturn(string purchaseRecordId, LumexDBPlayer db)
+        {
+            try
+            {
+                db.AddParameters("@PurchaseRecordId", purchaseRecordId.Trim());
+                DataTable dt = db.ExecuteDataTable("[GET_PURCHASE_RECORD_PRODUCT_LIST_BY_ID_FOR_RETURN]", true);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
+}

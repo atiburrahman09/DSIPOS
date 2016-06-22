@@ -1,0 +1,326 @@
+Modified
+
+dbo.SaleRecord:
+OthersDes nvarchar(500),
+OthersAmount decimal (18, 2)
+
+[dbo].[INSERT_RETAIL_SALES_RECORD]:
+
+USE [lmxsignbd]
+GO
+/****** Object:  StoredProcedure [dbo].[INSERT_RETAIL_SALES_RECORD]    Script Date: 03/21/2016 12:07:08 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROC [dbo].[INSERT_RETAIL_SALES_RECORD] 
+    @SalesOrderId varchar(20),
+    @CustomerId VARCHAR(20),
+    @CustomerName NVARCHAR(150),
+    @CustomerContactNumber NVARCHAR(150),
+    @CustomerAddress NVARCHAR(500),
+    @SalesCenterId VARCHAR(20),
+    @TotalAmount DECIMAL(18, 2),
+    @DiscountAmount DECIMAL(18, 2),
+    @VAT DECIMAL(18, 2),
+    @TotalReceivable DECIMAL(18, 2),
+    @ReceivedAmount DECIMAL(18, 2),
+    @ChangeAmount DECIMAL(18, 2),
+    @TotalVATAmount DECIMAL(18, 2),
+	@PaymentMode	varchar(6)	,
+    @AccountId	varchar(20)	,
+    @Bank	varchar(150)	,
+    @BankBranch	varchar(150)	,
+    @ChequeNumber	varchar(20)	,
+    @ChequeDate	smalldatetime	,
+    @CreatedBy VARCHAR(20),
+    @CreatedFrom VARCHAR(50),
+	@OthersDes	nvarchar(500),
+	@OthersAmount decimal(18,2),
+	@Narration nvarchar(100)
+
+AS 
+	SET NOCOUNT ON 
+	SET XACT_ABORT ON  
+	
+	BEGIN TRAN
+	
+	DECLARE @AutoID VARCHAR(20), @CashPaid DECIMAL(18, 2);
+	
+	IF(@CustomerId<>'Retail')
+		BEGIN
+			SELECT	@CustomerName=CustomerName, @CustomerContactNumber=ContactNumber, @CustomerAddress=[Address]
+			FROM	CustomerInfo
+			WHERE	CustomerId=@CustomerId
+		END
+	ELSE
+		BEGIN
+		if(@CustomerName!='' and @CustomerContactNumber!='')
+		Begin
+		INSERT INTO [dbo].[CustomerInfo] ([CustomerName], [ContactNumber],[JoiningSalesCenterId], [Address],[CreatedBy], [CreatedFrom], [CreatedDateTime], [IsDelete], [IsActive])
+		SELECT @CustomerName, @CustomerContactNumber,@SalesCenterId,@CustomerAddress,@CreatedBy, @CreatedFrom, CAST(dateadd(HOUR, 14, getdate()) AS SMALLDATETIME), 'False', 'True'
+	
+		IF (LEN(SCOPE_IDENTITY())<3)
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('Cst')+CAST(RIGHT('000'+CAST(SCOPE_IDENTITY() AS VARCHAR(16)),3) AS VARCHAR(16))
+		END
+		ELSE
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('Cst')+CAST(SCOPE_IDENTITY() AS VARCHAR(16))
+		END
+	
+		UPDATE [dbo].[CustomerInfo] 
+		SET [CustomerId]=@AutoID
+		WHERE Serial=SCOPE_IDENTITY()
+		
+		Set @CustomerId = @AutoID
+		end
+			--EXEC @CustomerId=INSERT_CUSTOMER @CustomerName,@CustomerContactNumber,'','','','','','','','',@SalesCenterId,@CreatedBy,@CreatedFrom
+		END
+	
+	IF(@ChangeAmount<1)
+		BEGIN
+			SET @CashPaid=@ReceivedAmount
+		END
+	ELSE
+		BEGIN
+			SET @CashPaid=@ReceivedAmount-@ChangeAmount
+		END
+	IF(@ChangeAmount<1)
+		BEGIN
+			SET @ChangeAmount=0
+		END
+	INSERT INTO [dbo].[SalesRecord] (SalesOrderId,[RecordDate], [CustomerId], [CustomerName], [CustomerContactNumber], [CustomerAddress], [SalesCenterId], [TotalAmount], [DiscountAmount], [VATPercentage], [TotalReceivable], [TotalVATAmount], [ReceivedAmount], [CashPaid], [ChangeAmount], [PaymentMode],AccountId,Bank,BankBranch,ChequeNumber,ChequeDate, [Status], [CreatedBy], [CreatedFrom], [CreatedDateTime],OthersDes,OthersAmount,Narration)
+	SELECT @SalesOrderId,CAST(dateadd(HOUR, 14, getdate()) AS SMALLDATETIME), @CustomerId, @CustomerName, @CustomerContactNumber, @CustomerAddress, @SalesCenterId, @TotalAmount, @DiscountAmount, @VAT, @TotalReceivable, @TotalVATAmount, @ReceivedAmount,@CashPaid, @ChangeAmount, @PaymentMode,@AccountId,@Bank,@BankBranch,@ChequeNumber,@ChequeDate, 'P', @CreatedBy, @CreatedFrom, CAST(dateadd(HOUR, 14, getdate()) AS SMALLDATETIME) ,@OthersDes,@OthersAmount,@Narration    
+	
+	IF (LEN(SCOPE_IDENTITY())<3)
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('SR')+CAST(RIGHT('000'+CAST(SCOPE_IDENTITY() AS VARCHAR(16)),3) AS VARCHAR(16))
+		END
+	ELSE
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('SR')+CAST(SCOPE_IDENTITY() AS VARCHAR(16))
+		END
+	
+	UPDATE [dbo].[SalesRecord] 
+	SET [SalesRecordId]=@AutoID
+	WHERE Serial=SCOPE_IDENTITY()
+    
+    SELECT @AutoID
+	
+	COMMIT
+
+
+dbo.SalesOrder:
+OthersDes nvarchar(500),
+OthersAmount decimal (18, 2)
+
+
+[dbo].[INSERT_SALES_ORDER] :
+
+USE [dsaccipos]
+GO
+/****** Object:  StoredProcedure [dbo].[INSERT_SALES_ORDER]    Script Date: 03/21/2016 1:27:55 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER  PROC [dbo].[INSERT_SALES_ORDER] 
+    @CustomerId VARCHAR(20),
+    @CustomerName NVARCHAR(150),
+    @CustomerContactNumber NVARCHAR(150),
+    @CustomerAddress NVARCHAR(500),
+    @SalesCenterId VARCHAR(20),
+    @SalesPersonId VARCHAR(20),
+    @TotalAmount DECIMAL(18, 2),
+    @VAT DECIMAL(18, 2),
+	@TotalVATAmount	decimal(18, 2)	,
+    @DiscountAmount	decimal(18, 2)	,
+    @TotalReceivable DECIMAL(18, 2),
+    @ReceivedAmount DECIMAL(18, 2),
+	@ChangeAmount DECIMAL(18, 2),
+    @DeliveryDate SMALLDATETIME,
+    @Narration NVARCHAR(250),
+    @TransportType VARCHAR(50),
+    @PaymentMode VARCHAR(6),
+	@AccountId varchar(20),
+    @Bank NVARCHAR(150),
+    @BankBranch NVARCHAR(150),
+    @ChequeNumber VARCHAR(20),
+    @ChequeDate SMALLDATETIME,
+    @LCNumber VARCHAR(20),
+    @ShippingAddress VARCHAR(500),
+    @BillingAddress VARCHAR(500),
+	@OthersDes	nvarchar(500),
+	@OthersAmount decimal(18,2),
+    @CreatedBy VARCHAR(20),
+    @CreatedFrom VARCHAR(50)
+AS 
+	SET NOCOUNT ON 
+	SET XACT_ABORT ON  
+	
+	BEGIN TRAN
+	
+	DECLARE @AutoID VARCHAR(20),@CashPaid DECIMAL(18, 2);
+	
+	IF(@CustomerId<>'Retail')
+		BEGIN
+			SELECT	@CustomerName=CustomerName, @CustomerContactNumber=ContactNumber, @CustomerAddress=[Address]
+			FROM	CustomerInfo
+			WHERE	CustomerId=@CustomerId
+		END
+	ELSE
+		BEGIN
+		if(@CustomerName!='' and @CustomerContactNumber!='')
+		Begin
+		INSERT INTO [dbo].[CustomerInfo] ([CustomerName], [ContactNumber],[JoiningSalesCenterId], [Address],[CreatedBy], [CreatedFrom], [CreatedDateTime], [IsDelete], [IsActive])
+		SELECT @CustomerName, @CustomerContactNumber,@SalesCenterId,@CustomerAddress,@CreatedBy, @CreatedFrom, CAST(GETDATE() AS SMALLDATETIME), 'False', 'True'
+	
+		IF (LEN(SCOPE_IDENTITY())<3)
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('Cst')+CAST(RIGHT('000'+CAST(SCOPE_IDENTITY() AS VARCHAR(16)),3) AS VARCHAR(16))
+		END
+		ELSE
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('Cst')+CAST(SCOPE_IDENTITY() AS VARCHAR(16))
+		END
+	
+		UPDATE [dbo].[CustomerInfo] 
+		SET [CustomerId]=@AutoID
+		WHERE Serial=SCOPE_IDENTITY()
+		
+		Set @CustomerId = @AutoID
+		end
+			--EXEC @CustomerId=INSERT_CUSTOMER @CustomerName,@CustomerContactNumber,'','','','','','','','',@SalesCenterId,@CreatedBy,@CreatedFrom
+		END
+	
+	if @PaymentMode='Cash'
+	Begin
+	IF(@ChangeAmount<1)
+		BEGIN
+			SET @CashPaid=@ReceivedAmount
+		END
+	ELSE
+		BEGIN
+			SET @CashPaid=@ReceivedAmount-@ChangeAmount
+		END
+	
+	End
+	Else
+	Begin
+    	SET @CashPaid=0
+	End
+	IF(@ChangeAmount<1)
+		BEGIN
+			SET @ChangeAmount=0 
+		END
+	INSERT INTO [dbo].[SalesOrder] ([OrderDate], [CustomerId], [CustomerName], [CustomerContactNumber], [CustomerAddress], [SalesCenterId], [SalesPersonId], [TotalAmount], [VAT],DiscountAmount,TotalVATAmount, [TotalReceivable], [ReceivedAmount],[CashPaid], [ChangeAmount], [Status], [DeliveryDate], [Narration], [Description], [TransportType], [PaymentMode], AccountId,[Bank], [BankBranch], [ChequeNumber], [ChequeDate], [LCNumber], [ShippingAddress], [BillingAddress], OthersAmount, OthersDes, [CreatedBy], [CreatedFrom], [CreatedDateTime])
+	SELECT CAST(DATEADD(HOUR,14, GETDATE())  AS SMALLDATETIME), @CustomerId, @CustomerName, @CustomerContactNumber, @CustomerAddress, @SalesCenterId, @SalesPersonId, @TotalAmount, @VAT,@DiscountAmount,@TotalVATAmount ,@TotalReceivable, @ReceivedAmount,@CashPaid,@ChangeAmount ,'P', @DeliveryDate, @Narration, '', @TransportType, @PaymentMode,@AccountId,@Bank, @BankBranch, @ChequeNumber, @ChequeDate, @LCNumber, @ShippingAddress, @BillingAddress,@OthersAmount,@OthersDes, @CreatedBy, @CreatedFrom, CAST(GETDATE() AS SMALLDATETIME)
+	
+	IF (LEN(SCOPE_IDENTITY())<3)
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('SO')+CAST(RIGHT('000'+CAST(SCOPE_IDENTITY() AS VARCHAR(16)),3) AS VARCHAR(16))
+		END
+	ELSE
+		BEGIN
+			SET @AutoID=dbo.GetAutoSerialPrefix('SO')+CAST(SCOPE_IDENTITY() AS VARCHAR(16))
+		END
+	
+	UPDATE [dbo].[SalesOrder] 
+	SET [SalesOrderId]=@AutoID
+	WHERE Serial=SCOPE_IDENTITY()
+    
+  --  INSERT INTO ReceivePayment
+		--([ReceivePaymentDate],[RecordDate],[RecordId],[ReceivePaymentFlag],[CustomerId],[SalesCenterId]
+		--,[Amount],[DueAmount],[Description],[Narration],[Status]
+		--,[CreatedBy],[CreatedFrom],[CreatedDateTime]
+		--)
+  --  SELECT OrderDate,OrderDate,SalesOrderId,'Rec',CustomerId,SalesCenterId
+		--,ReceivedAmount,TotalReceivable-ReceivedAmount,'Sales','Receive from Customer','A'
+		--,@CreatedBy,@CreatedFrom,CAST(GETDATE() AS SMALLDATETIME)
+  --  FROM  SalesOrder
+  --  WHERE SalesOrderId=@AutoID
+    
+    SELECT @AutoID
+	
+	COMMIT
+
+
+UPDATE_PRODUCT_PRICE_BY_ID:
+USE [dsaccipos]
+GO
+/****** Object:  StoredProcedure [dbo].[UPDATE_PRODUCT_PRICE_BY_ID]    Script Date: 03/22/2016 12:41:26 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER  PROC [dbo].[UPDATE_PRODUCT_PRICE_BY_ID] 
+    @ProductId VARCHAR(20),
+    @RatePerUnit DECIMAL(18, 2),
+	@BuyRatePerUnit DECIMAL(18, 2),
+    @VATPercentage FLOAT,
+    @ModifiedBy VARCHAR(20),
+    @ModifiedFrom VARCHAR(50)
+AS 
+	SET NOCOUNT ON 
+	SET XACT_ABORT ON  
+	
+	BEGIN TRAN
+
+	UPDATE [dbo].[ProductPrice]
+	SET    [RatePerUnit] = @RatePerUnit,
+	       [VATPercentage] = @VATPercentage,
+		   [LastUnitPrice]=@BuyRatePerUnit,
+	       [ModifiedBy] = @ModifiedBy, 
+	       [ModifiedFrom] = @ModifiedFrom, 
+	       [ModifiedDateTime] = CAST(GETDATE() AS SMALLDATETIME)
+	WHERE  [ProductId] = @ProductId
+	
+	EXEC INSERT_INTO_PRODUCT_PRICE_HISTORY_BY_ID @ProductId
+	
+	COMMIT
+
+
+
+
+
+
+
+
+
+
+
+Added New Procedure:
+
+[dbo].[INSERT_CUSTOMER_PAYMENT_BY_RECORD_ID]  
+dbo.INSERT_VENDOR_PAYMENT_BY_RECORD_ID
+
+
+
+ public DataTable SaveCustomerPayment(string acountOn, DataTable adata)
+        {
+            ReceivePaymentDAL receivePayment = new ReceivePaymentDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                DataTable dt = receivePayment.SaveCustomerPayment(this, acountOn, adata, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                receivePayment = null;
+            }
+        }
+
+
+****** Script for SelectTopNRows command from SSMS  ******/
+
+
+

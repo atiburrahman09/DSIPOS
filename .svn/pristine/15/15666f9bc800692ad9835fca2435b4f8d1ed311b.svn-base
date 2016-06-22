@@ -1,0 +1,348 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+
+namespace lmxIpos.UI.Product
+{
+    public partial class ManageProductPrice : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+                productTextBox.Attributes.Add("autocomplete", "off");
+
+                if (!IsPostBack)
+                {
+                    LoadProductGroups();
+                    // GetProductPriceListByProductGroup("All");
+                    GetOverallVATPercentage();
+                    productTextBox.Focus();
+                }
+
+                if (productPriceListGridView.Rows.Count > 0)
+                {
+                    productPriceListGridView.UseAccessibleHeader = true;
+                    productPriceListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+            }
+            catch (Exception ex)
+            {
+                updateButton.Enabled = false;
+
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void LoadProductGroups()
+        {
+            ProductGroupBLL productGroup = new ProductGroupBLL();
+
+            try
+            {
+                DataTable dt = productGroup.GetActiveProductGroupList();
+
+                productGroupDropDownList.DataSource = dt;
+                productGroupDropDownList.DataValueField = "ProductGroupId";
+                productGroupDropDownList.DataTextField = "ProductGroupName";
+                productGroupDropDownList.DataBind();
+                productGroupDropDownList.Items.Insert(0, "Select Please");
+                productGroupDropDownList.SelectedIndex = 0;
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Product Group Data Not Found!!!"; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                productGroup = null;
+            }
+        }
+
+        protected void GetProductPriceListByProductGroup(string productGroupId)
+        {
+            ProductPriceBLL productPrice = new ProductPriceBLL();
+
+            try
+            {
+                DataTable dt = new DataTable();
+
+
+                if (productGroupId == "All")
+                {
+                    dt = productPrice.GetProductPriceListByUser();
+                }
+                else
+                {
+                    dt = productPrice.GetProductPriceListByProductGroup(productGroupId);;
+                }
+                productPriceListGridView.DataSource = dt;
+                productPriceListGridView.DataBind();
+
+                //for (int i = 0; i < productPriceListGridView.Rows.Count; i++)
+                //{
+                //    TextBox newPriceTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[5].FindControl("newPriceTextBox");
+                //    TextBox newVATPercentageTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[7].FindControl("newVATPercentageTextBox");
+
+                //    newPriceTextBox.Text = dt.Rows[i]["RatePerUnit"].ToString();
+                //    newVATPercentageTextBox.Text = dt.Rows[i]["VATPercentage"].ToString();
+                //}
+
+                if (productPriceListGridView.Rows.Count > 0)
+                {
+                    productPriceListGridView.UseAccessibleHeader = true;
+                    productPriceListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                    updateButton.Enabled = true;
+                }
+                else
+                {
+                    updateButton.Enabled = false;
+                    msgbox.Visible = true; msgTitleLabel.Text = "No price list is found for the selected product group."; msgDetailLabel.Text = "";
+                    msgbox.Attributes.Add("class", "alert alert-warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                productPrice = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void productGroupDropDownList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GetProductPriceListByProductGroup(productGroupDropDownList.SelectedValue.Trim());
+        }
+
+        protected void updateButton_Click(object sender, EventArgs e)
+        {
+            string msg = string.Empty;
+            List<ProductPriceBLL> productPrices = new List<ProductPriceBLL>();
+            ProductPriceBLL productPrice;
+            decimal newRate = 0;
+            decimal newBuyRate = 0;
+            decimal newVAT = 0;
+            CheckBox selectCheckBox;
+            TextBox newPriceTextBox;
+            TextBox newBuyPriceTextBox;
+            TextBox newVATPercentageTextBox;
+            int i = 0;
+
+            try
+            {
+                for (i = 0; i < productPriceListGridView.Rows.Count; i++)
+                {
+                    selectCheckBox = (CheckBox)productPriceListGridView.Rows[i].Cells[7].FindControl("selectCheckBox");
+                    newBuyPriceTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[4].FindControl("buyPriceTextBox");
+                    newPriceTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[5].FindControl("newPriceTextBox");
+                    newVATPercentageTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[6].FindControl("newVATPercentageTextBox");
+
+                    if (selectCheckBox.Checked && string.IsNullOrEmpty(newPriceTextBox.Text.Trim()))
+                    {
+                        msg = "Product ID [" + productPriceListGridView.Rows[i].Cells[0].Text.ToString() + "] has no price to update new price.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else if (selectCheckBox.Checked && string.IsNullOrEmpty(newVATPercentageTextBox.Text.Trim()))
+                    {
+                        msg = "Product ID [" + productPriceListGridView.Rows[i].Cells[0].Text.ToString() + "] has no Discount(%) to update Discount VAT(%).";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else if (selectCheckBox.Checked)
+                    {
+                        newRate = decimal.Parse(newPriceTextBox.Text.Trim());
+                        newBuyRate = decimal.Parse(newBuyPriceTextBox.Text.Trim());
+                        newVAT = decimal.Parse(newVATPercentageTextBox.Text.Trim());
+
+                        productPrice = new ProductPriceBLL();
+                        productPrice.ProductId = productPriceListGridView.Rows[i].Cells[0].Text.ToString();
+                        productPrice.RatePerUnit = newRate;
+                        productPrice.VATPercentage = newVAT;
+                        productPrice.NewBuyRate = newBuyRate;
+
+                        productPrices.Add(productPrice);
+                    }
+                }
+
+                if (productPrices.Count > 0)
+                {
+                    productPrice = new ProductPriceBLL();
+                    productPrice.UpdateProductPriceList(productPrices);
+
+                    string message = "Product Price(s) & Discount(%) <span class='actionTopic'>Updated</span> Successfully.";
+                    MyAlertBox("var callbackOk = function () { $('#allProductListButton').click(); }; SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                }
+                else if (string.IsNullOrEmpty(msg))
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = "No Product is selected to update product price.";
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "Input string was not in a correct format.")
+                {
+                    msg = "Product ID [" + productPriceListGridView.Rows[i].Cells[0].Text.ToString() + "] has no valid price or VAT(%) to update new price.";
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = msg;
+                }
+                else
+                {
+                    string message = ex.Message;
+                    if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                    MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+                }
+            }
+            finally
+            {
+                productPrice = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void searchProductButton_Click(object sender, EventArgs e)
+        {
+            ProductBLL product = new ProductBLL();
+
+            try
+            {
+                if (productTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Product By field is required.";
+                }
+                else
+                {
+                    string productBarcodeIdName = "";
+                    string[] pid = productTextBox.Text.Trim().Split('[');
+                    if (pid.Length > 1)
+                    {
+                        productBarcodeIdName = pid[0];
+                    }
+                    else
+                    {
+                        productBarcodeIdName = productTextBox.Text.Trim();
+                    }
+                    DataTable dt = product.GetProductByBarcodeIdName(productBarcodeIdName);
+                    productPriceListGridView.DataSource = dt;
+                    productPriceListGridView.DataBind();
+
+                    //for (int i = 0; i < productPriceListGridView.Rows.Count; i++)
+                    //{
+                    //    TextBox newPriceTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[5].FindControl("newPriceTextBox");
+                    //    TextBox newVATPercentageTextBox = (TextBox)productPriceListGridView.Rows[i].Cells[7].FindControl("newVATPercentageTextBox");
+
+                    //    newPriceTextBox.Text = dt.Rows[i]["RatePerUnit"].ToString();
+                    //    newVATPercentageTextBox.Text = dt.Rows[i]["VATPercentage"].ToString();
+                    //}
+
+                    if (productPriceListGridView.Rows.Count > 0)
+                    {
+                        productPriceListGridView.UseAccessibleHeader = true;
+                        productPriceListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                        updateButton.Enabled = true;
+                    }
+                    else
+                    {
+                        updateButton.Enabled = false;
+                        msgbox.Visible = true; msgTitleLabel.Text = "No product is found."; msgDetailLabel.Text = "";
+                        msgbox.Attributes.Add("class", "alert alert-warning");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                product = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void allProductListButton_Click(object sender, EventArgs e)
+        {
+            GetProductPriceListByProductGroup("All");
+            productGroupDropDownList.SelectedIndex = 0;
+        }
+
+        protected void updateAVGvatButton_Click(object sender, EventArgs e)
+        {
+            ProductPriceBLL productPrice = new ProductPriceBLL();
+
+            try
+            {
+                if (overallVATTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Validation!!!"; msgDetailLabel.Text = "Overall VAT(%) field is required.";
+                }
+                else
+                {
+                    productPrice.UpdateOverallProductVAT(overallVATTextBox.Text.Trim());
+
+                    string message = "Overall VAT(%) <span class='actionTopic'>Updated</span> Successfully.";
+                    MyAlertBox("SuccessAlert(\"" + "Process Succeed" + "\", \"" + message + "\", \"\");");
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                productPrice = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+
+        protected void GetOverallVATPercentage()
+        {
+            ProductPriceBLL productPrice = new ProductPriceBLL();
+
+            try
+            {
+                DataTable dt = productPrice.GetOverallProductVAT();
+
+                overallVATTextBox.Text = dt.Rows[0][0].ToString();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                productPrice = null;
+                MyAlertBox("MyOverlayStop();");
+            }
+        }
+    }
+}

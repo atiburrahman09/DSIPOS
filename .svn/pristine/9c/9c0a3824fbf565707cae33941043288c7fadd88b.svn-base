@@ -1,0 +1,753 @@
+﻿using System;
+using System.Data;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.SalesOrder
+{
+    public partial class CreateSalesOrder : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            msgbox.Visible = false;
+
+            if (!IsPostBack)
+            {
+                checkedRowCountHiddenField.Value = "0";
+
+                LoadSalesCenters();
+                GetAvailableProductListBySalesCenter();
+                LoadSalesPersonsBySalesCenter();
+                LoadActiveCustomerList();
+                LoadBankList();
+            }
+
+            if (productListGridView.Rows.Count > 0)
+            {
+                productListGridView.UseAccessibleHeader = true;
+                productListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+            }
+
+            if (selectedProductListGridView.Rows.Count > 0)
+            {
+                selectedProductListGridView.UseAccessibleHeader = true;
+                selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                saveButton.Enabled = true;
+            }
+            else
+            {
+                saveButton.Enabled = false;
+                totalAmountTextBox.Text = "";
+                vatTextBox.Text = "";
+                totalReceivableTextBox.Text = "";
+                receivedAmountTextBox.Text = "";
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+
+        protected void LoadSalesCenters()
+        {
+            SalesCenterBLL salesCenter = new SalesCenterBLL();
+
+            try
+            {
+                DataTable dt = salesCenter.GetActiveSalesCenterListByUser();
+
+                salesCenterDropDownList.DataSource = dt;
+                salesCenterDropDownList.DataValueField = "SalesCenterId";
+                salesCenterDropDownList.DataTextField = "SalesCenterName";
+                salesCenterDropDownList.DataBind();
+                //salesCenterDropDownList.Items.Insert(0, "");
+                //salesCenterDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesCenter = null;
+            }
+        }
+
+        protected void LoadSalesPersonsBySalesCenter()
+        {
+            SalesPersonBLL salesPerson = new SalesPersonBLL();
+
+            try
+            {
+                DataTable dt = salesPerson.GetActiveSalesPersonListBySalesCenter(salesCenterDropDownList.SelectedValue.Trim());
+
+                salesPersonIdDropDownList.DataSource = dt;
+                salesPersonIdDropDownList.DataValueField = "SalesPersonId";
+                salesPersonIdDropDownList.DataTextField = "SalesPersonIdName";
+                salesPersonIdDropDownList.DataBind();
+                salesPersonIdDropDownList.Items.Insert(0, "");
+                salesPersonIdDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesPerson = null;
+            }
+        }
+
+        protected void LoadActiveCustomerList()
+        {
+            CustomerBLL customer = new CustomerBLL();
+
+            try
+            {
+                DataTable dt = customer.GetActiveCustomerList();
+
+                customerIdDropDownList.DataSource = dt;
+                customerIdDropDownList.DataValueField = "CustomerId";
+                customerIdDropDownList.DataTextField = "CustomerIdName";
+                customerIdDropDownList.DataBind();
+                customerIdDropDownList.Items.Insert(0, "");
+                customerIdDropDownList.Items.Insert(1, "Retail");
+                customerIdDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                customer = null;
+            }
+        }
+
+        protected void LoadBankList()
+        {
+            BankBLL bank = new BankBLL();
+
+            try
+            {
+                DataTable dt = bank.GetActiveBankList();
+
+                bankDropDownList.DataSource = dt;
+                bankDropDownList.DataValueField = "BankId";
+                bankDropDownList.DataTextField = "BankName";
+                bankDropDownList.DataBind();
+                bankDropDownList.Items.Insert(0, "");
+                bankDropDownList.Items.Insert(1, "N/A");
+                bankDropDownList.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                bank = null;
+            }
+        }
+
+        protected void GetAvailableProductListBySalesCenter()
+        {
+            ProductBLL product = new ProductBLL();
+
+            try
+            {
+                DataTable dt = product.GetAvailableProductListBySalesCenter(salesCenterDropDownList.SelectedValue.Trim());
+                productListGridView.DataSource = dt;
+                productListGridView.DataBind();
+
+                if (productListGridView.Rows.Count > 0)
+                {
+                    productListGridView.UseAccessibleHeader = true;
+                    productListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+
+                if (dt.Rows.Count < 1)
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Products are not available for the selected Sales Center!!!"; msgDetailLabel.Text = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                product = null;
+            }
+        }
+
+        protected void addSelectedProductButton_Click(object sender, EventArgs e)
+        {
+            AddNewProductInList();
+        }
+
+        protected void AddNewProductInList()
+        {
+            DataTable dt = new DataTable();
+            DataRow dr = null;
+
+            try
+            {
+                dt.Columns.Add(new DataColumn("Barcode"));
+                dt.Columns.Add(new DataColumn("ProductId"));
+                dt.Columns.Add(new DataColumn("ProductName"));
+                dt.Columns.Add(new DataColumn("FreeQuantity"));
+                dt.Columns.Add(new DataColumn("Unit"));
+                dt.Columns.Add(new DataColumn("RatePerUnit"));
+                dt.Columns.Add(new DataColumn("OrderQuantity"));
+                dt.Columns.Add(new DataColumn("Amount"));
+
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    dr = dt.NewRow();
+
+                    dr["Barcode"] = selectedProductListGridView.Rows[i].Cells[0].Text.ToString();
+                    dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                    dr["ProductName"] = selectedProductListGridView.Rows[i].Cells[2].Text.ToString();
+                    dr["FreeQuantity"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+                    dr["Unit"] = selectedProductListGridView.Rows[i].Cells[4].Text.ToString();
+
+                    TextBox ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                    dr["RatePerUnit"] = ratePerUnitTextBox.Text.Trim();
+
+                    TextBox orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                    dr["OrderQuantity"] = orderQuantityTextBox.Text.Trim();
+
+                    TextBox amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+                    dr["Amount"] = amountTextBox.Text.Trim();
+
+                    dt.Rows.Add(dr);
+                }
+
+                //int previousRowcount = dt.Rows.Count;
+
+                for (int i = 0; i < productListGridView.Rows.Count; i++)
+                {
+                    CheckBox chkbx = (CheckBox)productListGridView.Rows[i].FindControl("selectCheckBox");
+
+                    if (chkbx.Checked && !CheckAddedProduct(productListGridView.Rows[i].Cells[1].Text.ToString()))
+                    {
+                        dr = dt.NewRow();
+
+                        dr["Barcode"] = productListGridView.Rows[i].Cells[0].Text.ToString();
+                        dr["ProductId"] = productListGridView.Rows[i].Cells[1].Text.ToString();
+                        dr["ProductName"] = productListGridView.Rows[i].Cells[2].Text.ToString();
+                        dr["FreeQuantity"] = productListGridView.Rows[i].Cells[5].Text.ToString();
+                        dr["Unit"] = productListGridView.Rows[i].Cells[3].Text.ToString();
+                        dr["RatePerUnit"] = productListGridView.Rows[i].Cells[6].Text.ToString();
+                        dr["OrderQuantity"] = string.Empty;
+                        dr["Amount"] = string.Empty;
+
+                        dt.Rows.Add(dr);
+                    }
+                }
+
+                selectedProductListGridView.DataSource = dt;
+                selectedProductListGridView.DataBind();
+
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++) //for (int i = 0; i < previousRowcount; i++)
+                {
+                    TextBox ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                    ratePerUnitTextBox.Text = dt.Rows[i]["RatePerUnit"].ToString();
+
+                    TextBox orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                    orderQuantityTextBox.Text = dt.Rows[i]["OrderQuantity"].ToString();
+
+                    TextBox amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+                    amountTextBox.Text = dt.Rows[i]["Amount"].ToString();
+                }
+
+                if (selectedProductListGridView.Rows.Count > 0)
+                {
+                    selectedProductListGridView.UseAccessibleHeader = true;
+                    selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                    saveButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                    totalAmountTextBox.Text = "";
+                    vatTextBox.Text = "";
+                    totalReceivableTextBox.Text = "";
+                    receivedAmountTextBox.Text = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                dt.Dispose();
+                dr = null;
+            }
+        }
+
+        protected bool CheckAddedProduct(string productBarcodeIdName)
+        {
+            bool status = false;
+
+            try
+            {
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    if (selectedProductListGridView.Rows[i].Cells[0].Text.ToString() == productBarcodeIdName || selectedProductListGridView.Rows[i].Cells[1].Text.ToString() == productBarcodeIdName || selectedProductListGridView.Rows[i].Cells[2].Text.ToString() == productBarcodeIdName)
+                    {
+                        status = true;
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+
+            return status;
+        }
+
+        protected void addProductButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string productBarcodeIdName = productTextBox.Text.Trim();
+
+                if (string.IsNullOrEmpty(productBarcodeIdName))
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Write Product Barcode or ID or Name to search.";
+                }
+                else
+                {
+                    if (CheckAddedProduct(productTextBox.Text.Trim()))
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "This product already added in the selected product list.";
+                    }
+                    else
+                    {
+                        for (int j = 0; j < productListGridView.Rows.Count; j++)
+                        {
+                            if (productListGridView.Rows[j].Cells[0].Text.ToString() == productBarcodeIdName || productListGridView.Rows[j].Cells[1].Text.ToString() == productBarcodeIdName || productListGridView.Rows[j].Cells[2].Text.ToString() == productBarcodeIdName)
+                            {
+                                DataTable dt = new DataTable();
+                                DataRow dr = null;
+
+                                dt.Columns.Add(new DataColumn("Barcode"));
+                                dt.Columns.Add(new DataColumn("ProductId"));
+                                dt.Columns.Add(new DataColumn("ProductName"));
+                                dt.Columns.Add(new DataColumn("FreeQuantity"));
+                                dt.Columns.Add(new DataColumn("Unit"));
+                                dt.Columns.Add(new DataColumn("RatePerUnit"));
+                                dt.Columns.Add(new DataColumn("OrderQuantity"));
+                                dt.Columns.Add(new DataColumn("Amount"));
+
+                                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                                {
+                                    dr = dt.NewRow();
+
+                                    dr["Barcode"] = selectedProductListGridView.Rows[i].Cells[0].Text.ToString();
+                                    dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                                    dr["ProductName"] = selectedProductListGridView.Rows[i].Cells[2].Text.ToString();
+                                    dr["FreeQuantity"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+                                    dr["Unit"] = selectedProductListGridView.Rows[i].Cells[4].Text.ToString();
+
+                                    TextBox ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                                    dr["RatePerUnit"] = ratePerUnitTextBox.Text.Trim();
+
+                                    TextBox orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                                    dr["OrderQuantity"] = orderQuantityTextBox.Text.Trim();
+
+                                    TextBox amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+                                    dr["Amount"] = amountTextBox.Text.Trim();
+
+                                    dt.Rows.Add(dr);
+                                }
+
+                                //int previousRowcount = dt.Rows.Count;
+
+                                dr = dt.NewRow();
+                                dr["Barcode"] = productListGridView.Rows[j].Cells[0].Text.ToString();
+                                dr["ProductId"] = productListGridView.Rows[j].Cells[1].Text.ToString();
+                                dr["ProductName"] = productListGridView.Rows[j].Cells[2].Text.ToString();
+                                dr["FreeQuantity"] = productListGridView.Rows[j].Cells[5].Text.ToString();
+                                dr["Unit"] = productListGridView.Rows[j].Cells[3].Text.ToString();
+                                dr["RatePerUnit"] = productListGridView.Rows[j].Cells[6].Text.ToString();
+                                dr["OrderQuantity"] = string.Empty;
+                                dr["Amount"] = string.Empty;
+                                dt.Rows.Add(dr);
+
+                                selectedProductListGridView.DataSource = dt;
+                                selectedProductListGridView.DataBind();
+
+                                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++) //for (int i = 0; i < previousRowcount; i++)
+                                {
+                                    TextBox ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                                    ratePerUnitTextBox.Text = dt.Rows[i]["RatePerUnit"].ToString();
+
+                                    TextBox orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                                    orderQuantityTextBox.Text = dt.Rows[i]["OrderQuantity"].ToString();
+
+                                    TextBox amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+                                    amountTextBox.Text = dt.Rows[i]["Amount"].ToString();
+                                }
+
+                                if (selectedProductListGridView.Rows.Count > 0)
+                                {
+                                    selectedProductListGridView.UseAccessibleHeader = true;
+                                    selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                                    saveButton.Enabled = true;
+                                }
+                                else
+                                {
+                                    saveButton.Enabled = false;
+                                }
+
+                                CheckBox chkbx = (CheckBox)productListGridView.Rows[j].FindControl("selectCheckBox");
+                                chkbx.Checked = true;
+                                checkedRowCountHiddenField.Value = (int.Parse(checkedRowCountHiddenField.Value) + 1).ToString();
+
+                                productBarcodeIdName = "added";
+                                break;
+                            }
+                        }
+
+                        if (productBarcodeIdName != "added")
+                        {
+                            msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Product not found.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void saveButton_Click(object sender, EventArgs e)
+        {
+            string msg = string.Empty;
+
+            SalesOrderBLL salesOrder = new SalesOrderBLL();
+            DataTable dtPrdList = new DataTable();
+            DataRow dr = null;
+            int quantity = 0;
+            double rate = 0;
+            double amount = 0;
+            TextBox orderQuantityTextBox;
+            TextBox ratePerUnitTextBox;
+            TextBox amountTextBox;
+            int i = 0;
+
+            dtPrdList.Columns.Add("ProductId");
+            dtPrdList.Columns.Add("Available");
+            dtPrdList.Columns.Add("Quantity");
+            dtPrdList.Columns.Add("RatePerUnit");
+            dtPrdList.Columns.Add("Amount");
+
+            try
+            {
+                if (salesCenterDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Sales Center Name field is required.";
+                    return;
+                }
+
+                for (i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                    ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                    amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+
+                    if (string.IsNullOrEmpty(orderQuantityTextBox.Text.Trim()) || !Int32.TryParse(orderQuantityTextBox.Text.Trim(), out quantity))
+                    {
+                        msg = "Product ID [" + selectedProductListGridView.Rows[i].Cells[1].Text.ToString() + "] has no valid quantity.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else if (string.IsNullOrEmpty(ratePerUnitTextBox.Text.Trim()) || !double.TryParse(ratePerUnitTextBox.Text.Trim(), out rate))
+                    {
+                        msg = "Product ID [" + selectedProductListGridView.Rows[i].Cells[1].Text.ToString() + "] has no valid rate.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else if (string.IsNullOrEmpty(amountTextBox.Text.Trim()) || !double.TryParse(amountTextBox.Text.Trim(), out amount))
+                    {
+                        msg = "Product ID [" + selectedProductListGridView.Rows[i].Cells[1].Text.ToString() + "] has no valid amount.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else
+                    {
+                        dr = dtPrdList.NewRow();
+
+                        dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                        dr["Available"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+                        dr["Quantity"] = quantity.ToString();
+                        dr["RatePerUnit"] = rate.ToString();
+                        dr["Amount"] = amount.ToString();
+
+                        dtPrdList.Rows.Add(dr);
+                    }
+                }
+
+                if (totalAmountTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Total Amount field is required.";
+                    return;
+                }
+                else if (vatTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "VAT field is required.";
+                    return;
+                }
+                else if (totalReceivableTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Total Receivable field is required.";
+                    return;
+                }
+                else if (receivedAmountTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Received Amount field is required.";
+                    return;
+                }
+                else if (customerIdDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Customer ID field is required.";
+                    return;
+                }
+                else if (customerIdDropDownList.SelectedValue == "Retail" && customerNameTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Customer Name field is required.";
+                    return;
+                }
+                else if (customerIdDropDownList.SelectedValue == "Retail" && customerContactNumberTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Customer Contact Number field is required.";
+                    return;
+                }
+                else if (customerIdDropDownList.SelectedValue == "Retail" && customerAddressTextBox.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Customer Address field is required.";
+                    return;
+                }
+                else if (transportTypeDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Transport Type field is required.";
+                    return;
+                }
+
+                if (paymentModeDropDownList.SelectedValue == "Cheque")
+                {
+                    if (chequeNumberTextBox.Text.Trim() == "")
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Cheque Number field is required.";
+                        return;
+                    }
+                    else if (chequeDateTextBox.Text.Trim() == "" || LumexLibraryManager.ParseAppDate(chequeDateTextBox.Text.Trim()) == "False")
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Cheque Date field is required.";
+                        return;
+                    }
+                    else if (bankDropDownList.SelectedValue == "")
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Bank Name field is required.";
+                        return;
+                    }
+                    else if (bankBranchTextBox.Text.Trim() == "")
+                    {
+                        msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Bank Branch Name field is required.";
+                        return;
+                    }
+                }
+
+                if (salesPersonIdDropDownList.SelectedValue == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Sales Person ID field is required.";
+                    return;
+                }
+                else if (deliveryDateTextBox.Text.Trim() == "" || LumexLibraryManager.ParseAppDate(deliveryDateTextBox.Text.Trim()) == "False")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Delivery Date field is required.";
+                    return;
+                }
+                else
+                {
+                    salesOrder.SalesCenterId = salesCenterDropDownList.SelectedValue.Trim();
+                    salesOrder.CustomerId = customerIdDropDownList.SelectedValue.Trim();
+                    salesOrder.CustomerName = customerNameTextBox.Text.Trim();
+                    salesOrder.CustomerContactNumber = customerContactNumberTextBox.Text.Trim();
+                    salesOrder.CustomerAddress = customerAddressTextBox.Text.Trim();
+                    salesOrder.DeliveryDate = LumexLibraryManager.ParseAppDate(deliveryDateTextBox.Text.Trim());
+                    salesOrder.SalesPersonId = salesPersonIdDropDownList.SelectedValue.Trim();
+                    salesOrder.TotalAmount = totalAmountTextBox.Text.Trim();
+                    salesOrder.VAT = vatTextBox.Text.Trim();
+                    salesOrder.TotalReceivable = totalReceivableTextBox.Text.Trim();
+                    salesOrder.ReceivedAmount = receivedAmountTextBox.Text.Trim();
+                    salesOrder.Narration = narrationTextBox.Text.Trim();
+                    salesOrder.LCNumber = lcNumberTextBox.Text.Trim();
+                    salesOrder.TransportType = transportTypeDropDownList.SelectedValue.Trim();
+                    salesOrder.ShippingAddress = shippingAddressTextBox.Text.Trim();
+                    salesOrder.BillingAddress = billingAddressTextBox.Text.Trim();
+                    salesOrder.PaymentMode = paymentModeDropDownList.SelectedValue.Trim();
+                    salesOrder.Bank = bankDropDownList.SelectedValue.Trim();
+                    salesOrder.BankBranch = bankBranchTextBox.Text.Trim();
+                    salesOrder.ChequeNumber = chequeNumberTextBox.Text.Trim();
+                    salesOrder.ChequeDate = LumexLibraryManager.ParseAppDate(chequeDateTextBox.Text.Trim());
+                }
+
+                if (dtPrdList.Rows.Count == selectedProductListGridView.Rows.Count)
+                {
+                    string salesOrderId = salesOrder.SaveSalesOrder(dtPrdList);
+                    MyAlertBox("alert(\"Product(s) Sales Order Created Successfully with Order ID: " + salesOrderId.Trim() + " \"); window.location=\"/UI/SalesOrder/SalesOrderList.aspx\"");
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+        protected void removeLinkButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                GridViewRow gvRow = (GridViewRow)(sender as Control).Parent.Parent;
+                int index = gvRow.RowIndex;
+
+                string productId = selectedProductListGridView.Rows[index].Cells[1].Text.ToString();
+
+                DataTable dt = new DataTable();
+                DataRow dr = null;
+
+                dt.Columns.Add(new DataColumn("Barcode"));
+                dt.Columns.Add(new DataColumn("ProductId"));
+                dt.Columns.Add(new DataColumn("ProductName"));
+                dt.Columns.Add(new DataColumn("FreeQuantity"));
+                dt.Columns.Add(new DataColumn("Unit"));
+                dt.Columns.Add(new DataColumn("RatePerUnit"));
+                dt.Columns.Add(new DataColumn("OrderQuantity"));
+                dt.Columns.Add(new DataColumn("Amount"));
+
+                for (int i = 0; i < selectedProductListGridView.Rows.Count; i++)
+                {
+                    dr = dt.NewRow();
+
+                    dr["Barcode"] = selectedProductListGridView.Rows[i].Cells[0].Text.ToString();
+                    dr["ProductId"] = selectedProductListGridView.Rows[i].Cells[1].Text.ToString();
+                    dr["ProductName"] = selectedProductListGridView.Rows[i].Cells[2].Text.ToString();
+                    dr["FreeQuantity"] = selectedProductListGridView.Rows[i].Cells[3].Text.ToString();
+                    dr["Unit"] = selectedProductListGridView.Rows[i].Cells[4].Text.ToString();
+
+                    TextBox ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                    dr["RatePerUnit"] = ratePerUnitTextBox.Text.Trim();
+
+                    TextBox orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                    dr["OrderQuantity"] = orderQuantityTextBox.Text.Trim();
+
+                    TextBox amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+                    dr["Amount"] = amountTextBox.Text.Trim();
+
+                    dt.Rows.Add(dr);
+                }
+
+                for (int i = 0; i < productListGridView.Rows.Count; i++)
+                {
+                    if (productListGridView.Rows[i].Cells[1].Text.ToString() == productId)
+                    {
+                        CheckBox chkbx = (CheckBox)productListGridView.Rows[i].FindControl("selectCheckBox");
+                        chkbx.Checked = false;
+
+                        CheckBox allchkbx = (CheckBox)productListGridView.HeaderRow.FindControl("allCheckBox");
+                        allchkbx.Checked = false;
+                        checkedRowCountHiddenField.Value = (int.Parse(checkedRowCountHiddenField.Value) - 1).ToString();
+
+                        break;
+                    }
+                }
+
+                dt.Rows.RemoveAt(index);
+                selectedProductListGridView.DataSource = dt;
+                selectedProductListGridView.DataBind();
+
+                double amount = 0;
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    TextBox ratePerUnitTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                    ratePerUnitTextBox.Text = dt.Rows[i]["RatePerUnit"].ToString();
+
+                    TextBox orderQuantityTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                    orderQuantityTextBox.Text = dt.Rows[i]["OrderQuantity"].ToString();
+
+                    TextBox amountTextBox = (TextBox)selectedProductListGridView.Rows[i].FindControl("amountTextBox");
+                    amountTextBox.Text = dt.Rows[i]["Amount"].ToString();
+
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["Amount"].ToString()))
+                    {
+                        amount += double.Parse(dt.Rows[i]["Amount"].ToString());
+                    }
+                }
+
+                totalAmountTextBox.Text = amount.ToString();
+                if (string.IsNullOrEmpty(vatTextBox.Text.Trim()))
+                {
+                    totalReceivableTextBox.Text = amount.ToString();
+                }
+                else
+                {
+                    totalReceivableTextBox.Text = ((amount * double.Parse(vatTextBox.Text.Trim()) / 100) + amount).ToString();
+                }
+
+                if (selectedProductListGridView.Rows.Count > 0)
+                {
+                    selectedProductListGridView.UseAccessibleHeader = true;
+                    selectedProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+                    saveButton.Enabled = true;
+                }
+                else
+                {
+                    saveButton.Enabled = false;
+                    totalAmountTextBox.Text = "";
+                    vatTextBox.Text = "";
+                    totalReceivableTextBox.Text = "";
+                    receivedAmountTextBox.Text = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void salesCenterDropDownList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedProductListGridView.DataSource = null;
+            selectedProductListGridView.DataBind();
+
+            saveButton.Enabled = false;
+            totalAmountTextBox.Text = "";
+            vatTextBox.Text = "";
+            totalReceivableTextBox.Text = "";
+            receivedAmountTextBox.Text = "";
+
+            GetAvailableProductListBySalesCenter();
+            LoadSalesPersonsBySalesCenter();
+        }
+    }
+}

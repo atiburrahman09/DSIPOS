@@ -1,0 +1,353 @@
+﻿using System;
+using System.Data;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Lumex.Project.BLL;
+using Lumex.Tech;
+
+namespace lmxIpos.UI.SalesOrder
+{
+    public partial class SalesOrderDetail : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                msgbox.Visible = false;
+
+                if (!IsPostBack)
+                {
+                    idLabel.Text = salesOrderIdForViewHiddenField.Value = (string)LumexSessionManager.Get("SalesOrderIdForView");
+                    GetSalesOrderById(salesOrderIdForViewHiddenField.Value.Trim());
+                    GetSalesOrderProductListById(salesOrderIdForViewHiddenField.Value.Trim());
+                }
+
+                if (salesOrderProductListGridView.Rows.Count > 0)
+                {
+                    salesOrderProductListGridView.UseAccessibleHeader = true;
+                    salesOrderProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+        }
+
+        protected void MyAlertBox(string alertScript)
+        {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "ServerControlScript", alertScript, true);
+        }
+        protected void GetSalesOrderById(string salesOrderId)
+        {
+            SalesOrderBLL salesOrder = new SalesOrderBLL();
+
+            try
+            {
+                DataTable dt = salesOrder.GetSalesOrderById(salesOrderId);
+
+                if (dt.Rows.Count > 0)
+                {
+                    orderIdLabel.Text = dt.Rows[0]["SalesOrderId"].ToString();
+                    orderDateLabel.Text = dt.Rows[0]["OrderDate"].ToString();
+
+                    salesCenterIdLabel.Text = dt.Rows[0]["SalesCenterId"].ToString(); //+ " [" + dt.Rows[0]["SalesCenterName"].ToString()+"]";
+                    salesCenterNameLabel.Text = dt.Rows[0]["SalesCenterName"].ToString();
+                    customerIdLabel.Text = dt.Rows[0]["CustomerId"].ToString();
+                    customerNameLabel.Text = dt.Rows[0]["CustomerName"].ToString();
+                    customerContactNumberLabel.Text = dt.Rows[0]["CustomerContactNumber"].ToString();
+                    customerAddressLabel.Text = dt.Rows[0]["CustomerAddress"].ToString();
+                    narrationLabel.Text = dt.Rows[0]["Narration"].ToString();
+                    statusLabel.Text = dt.Rows[0]["Status"].ToString();
+                    SalesPersonLabel.Text = dt.Rows[0]["SalesPersonName"].ToString();
+                    PaymentModeLabel.Text = dt.Rows[0]["PaymentMode"].ToString();
+                    PaymentInfoLabel.Text = dt.Rows[0]["AccountId"].ToString() + "-" + dt.Rows[0]["ChequeNumber"].ToString() + "-" + dt.Rows[0]["Bank"].ToString() + "-" + dt.Rows[0]["BankBranch"].ToString();
+                    OtherSalesTextBox.Text = dt.Rows[0]["OthersDes"].ToString();
+                    OthersSalesAmount.Text = dt.Rows[0]["OthersAmount"].ToString();
+                    //transportTypeLabel.Text = dt.Rows[0]["TransportType"].ToString();
+                    //shippingAddressLabel.Text = dt.Rows[0]["ShippingAddress"].ToString();
+                    //billingAddressLabel.Text = dt.Rows[0]["BillingAddress"].ToString();
+                    //paymentModeLabel.Text = dt.Rows[0]["PaymentMode"].ToString();
+                    //chequeNumberLabel.Text = dt.Rows[0]["ChequeNumber"].ToString();
+                    //chequeDateLabel.Text = dt.Rows[0]["ChequeDate"].ToString();
+                    //bankLabel.Text = dt.Rows[0]["Bank"].ToString();
+                    //bankBranchLabel.Text = dt.Rows[0]["BankBranch"].ToString();
+                    deliveryDateLabel.Text = dt.Rows[0]["DeliveryDate"].ToString();
+                    //lcNumberLabel.Text = dt.Rows[0]["LCNumber"].ToString();
+                    //transportDateLabel.Text = dt.Rows[0]["TransportDate"].ToString();
+                    totalAmountLabel.Text = dt.Rows[0]["TotalAmount"].ToString();
+                    DisCountParLabel.Text = dt.Rows[0]["DiscountPercentage"].ToString();
+                    totalReceivableLabel.Text = dt.Rows[0]["TotalReceivable"].ToString();
+                    receivedAmountLabel.Text = dt.Rows[0]["ReceivedAmount"].ToString();
+                    DiscountAmountLabel.Text = dt.Rows[0]["DiscountAmount"].ToString();
+                    ServiceAmountLabel.Text = dt.Rows[0]["ServiceAmount"].ToString();
+                    ServiceChargeParLable.Text = dt.Rows[0]["ServicePercentage"].ToString();
+                    CreditStatusLabel.Text = dt.Rows[0]["CreditStatus"].ToString();
+                   // VATamntLabel.Text = dt.Rows[0]["TotalVATAmount"].ToString();
+                    hdnfildChangeAmount.Value = dt.Rows[0]["ChangeAmount"].ToString();
+                    if (statusLabel.Text == "Pending")
+                    {
+                        btnAccept.Visible = true;
+                        btnReject.Visible = true;
+                    }
+                    else
+                    {
+                        btnAccept.Visible = false;
+                        btnReject.Visible = false;
+                    }
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Data Not Found!!!"; msgDetailLabel.Text = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                // msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = ex.Message;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        protected void GetSalesOrderProductListById(string salesOrderId)
+        {
+            SalesOrderBLL salesOrder = new SalesOrderBLL();
+
+            try
+            {
+                if (statusLabel.Text != "Pending")
+                {
+                    salesOrderProductListGridView.Columns[5].Visible = false;
+                    salesOrderProductListGridView.Columns[6].Visible = false;
+                    salesOrderProductListGridView.Columns[7].Visible = false;
+                    salesOrderProductListGridView.Columns[8].Visible = false;
+                    salesOrderProductListGridView.Columns[9].Visible = true;
+                    salesOrderProductListGridView.Columns[10].Visible = true;
+                    salesOrderProductListGridView.Columns[11].Visible = true;
+                    salesOrderProductListGridView.Columns[12].Visible = true;
+                    //New Add
+                    salesOrderProductListGridView.Columns[4].Visible = false;
+
+
+                }
+                else
+                {
+                    salesOrderProductListGridView.Columns[5].Visible = true;
+                    salesOrderProductListGridView.Columns[6].Visible = true;
+                    salesOrderProductListGridView.Columns[7].Visible = true;
+                    salesOrderProductListGridView.Columns[8].Visible = true;
+                    salesOrderProductListGridView.Columns[9].Visible = false;
+                    salesOrderProductListGridView.Columns[10].Visible = false;
+                    salesOrderProductListGridView.Columns[11].Visible = false;
+                    salesOrderProductListGridView.Columns[12].Visible = false;
+                    //New add
+                    salesOrderProductListGridView.Columns[4].Visible = true;
+                }
+
+                DataTable dt = salesOrder.GetSalesOrderProductListById(salesOrderId);
+
+                if (dt.Rows.Count > 0)
+                {
+                    salesOrderProductListGridView.DataSource = dt;
+                    salesOrderProductListGridView.DataBind();
+
+                    if (salesOrderProductListGridView.Rows.Count > 0)
+                    {
+                        salesOrderProductListGridView.UseAccessibleHeader = true;
+                        salesOrderProductListGridView.HeaderRow.TableSection = TableRowSection.TableHeader;
+
+
+                    }
+
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Data Not Found!!!"; msgDetailLabel.Text = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "Somethings goes wrong in getProduct By ID" + ex.Message;
+            }
+            finally
+            {
+                salesOrder = null;
+            }
+        }
+
+        protected void btnReject_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SalesOrderBLL salesOrderBll = new SalesOrderBLL();
+
+                if (rejectProduct(orderIdLabel.Text.Trim()))
+                {
+                    string message = "Sale's  Order <span class='actionTopic'>Rejected</span> Successfully <span class='actionTopic'>" +
+                      "</span>.";
+                    MyAlertBox("var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/SalesOrder/SalesOrderList.aspx\"; }; SuccessAlert(\"" +
+                        "Process Succeed" + "\", \"" + message + "\",callbackOk);");
+                }
+                else
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Warning !!!"; msgDetailLabel.Text = "Sales Order does not Rejected";
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+        }
+        protected bool rejectProduct(string SOID)
+        {
+            SalesOrderBLL salesOrder = new SalesOrderBLL();
+            bool status = false;
+            try
+            {
+                status = salesOrder.rejectProduct(SOID);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            return status;
+        }
+
+        protected void btnAccept_Click(object sender, EventArgs e)
+        {
+
+            string msg = string.Empty;
+
+            SalesOrderBLL salesOrder = new SalesOrderBLL();
+            DataTable dtPrdList = new DataTable();
+            DataRow dr = null;
+            decimal quantity = 0;
+            double rate = 0;
+            double amount = 0;
+            TextBox approveQuantityTextbox;
+            TextBox rateTextBox;
+            TextBox amountAndVatTextBox;
+            int i = 0;
+
+            dtPrdList.Columns.Add("ProductId");
+            dtPrdList.Columns.Add("Quantity");
+            dtPrdList.Columns.Add("RatePerUnit");
+            dtPrdList.Columns.Add("VATPercentage");
+            dtPrdList.Columns.Add("Amount");
+            //dtPrdList.Columns.Add("Amount");
+
+            try
+            {
+                for (i = 0; i < salesOrderProductListGridView.Rows.Count; i++)
+                {
+                    approveQuantityTextbox = (TextBox)salesOrderProductListGridView.Rows[i].FindControl("orderQuantityTextBox");
+                    rateTextBox = (TextBox)salesOrderProductListGridView.Rows[i].FindControl("ratePerUnitTextBox");
+                    amountAndVatTextBox = (TextBox)salesOrderProductListGridView.Rows[i].FindControl("amountTextBox");
+
+                    if (string.IsNullOrEmpty(approveQuantityTextbox.Text.Trim()) || !decimal.TryParse(approveQuantityTextbox.Text.Trim(), out quantity))
+                    {
+                        msg = "Product ID [" + salesOrderProductListGridView.Rows[i].Cells[0].Text.ToString() + "] has no valid quantity.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else if (string.IsNullOrEmpty(rateTextBox.Text.Trim()) || !double.TryParse(rateTextBox.Text.Trim(), out rate))
+                    {
+                        msg = "Product ID [" + salesOrderProductListGridView.Rows[i].Cells[0].Text.ToString() + "] has no valid rate.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else if (string.IsNullOrEmpty(amountAndVatTextBox.Text.Trim()) || !double.TryParse(amountAndVatTextBox.Text.Trim(), out amount))
+                    {
+                        msg = "Product ID [" + salesOrderProductListGridView.Rows[i].Cells[0].Text.ToString() + "] has no valid amount.";
+                        msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = msg;
+                        return;
+                    }
+                    else
+                    {
+                        dr = dtPrdList.NewRow();
+
+                        dr["ProductId"] = salesOrderProductListGridView.Rows[i].Cells[0].Text.ToString();
+                        //dr["Available"] = salesOrderProductListGridView.Rows[i].Cells[3].Text.ToString();
+                        dr["Quantity"] = quantity.ToString();
+                        dr["RatePerUnit"] = rate.ToString();
+                        dr["VATPercentage"] = salesOrderProductListGridView.Rows[i].Cells[7].Text.ToString();
+                        dr["Amount"] = amount.ToString();
+
+                        dtPrdList.Rows.Add(dr);
+                    }
+                }
+
+                if (totalAmountLabel.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = "Total Amount field is required.";
+                    return;
+                }
+                //else if (vatLabel.Text.Trim() == "")
+                //{
+                //    msgbox.Visible = true; msgTitleLabel.Text = "Exception!!!"; msgDetailLabel.Text = "VAT field is required.";
+                //    return;
+                //}
+                else if (totalReceivableLabel.Text.Trim() == "")
+                {
+                    msgbox.Visible = true; msgTitleLabel.Text = "Warning!!!"; msgDetailLabel.Text = "Total Receivable field is required.";
+                    return;
+                }
+                //if (string.IsNullOrEmpty(vatLabel.Text))
+                //{
+                //    vatLabel.Text = "0";
+                //}
+                salesOrder.SalesOrderId = orderIdLabel.Text.Trim();
+                //salesOrder.SalesCenterId = salesCenterIdLabel.Text.Trim();
+                //salesOrder.TotalAmount = totalAmountLabel.Text.Trim();
+                //salesOrder.DiscountAmount =DiscountAmountLabel.Text.Trim();
+                //salesOrder.VAT = "0";//vatLabel.Text.Trim();
+                //salesOrder.TotalReceivable = totalReceivableLabel.Text.Trim();
+                //salesOrder.TotalVATAmount = "0";//VATamntLabel.Text.Trim();
+               // salesOrder.PaymentMode = PaymentModeLabel.Text;
+                //salesOrder.ChangeAmount = hdnfildChangeAmount.Value;
+                //salesOrder.ReceivedAmount = receivedAmountLabel.Text.Trim();
+                
+
+                if (dtPrdList.Rows.Count == salesOrderProductListGridView.Rows.Count)
+                {
+                    //  string salesRecordId = salesOrder.SaveRetailSales(dtPrdList);
+                    string salesRecordId = salesOrder.ApproveSalesOrder(dtPrdList);
+                    salesOrder.UpdateSalesOrderOnApproved(salesRecordId, salesOrder.SalesOrderId);
+
+                    if (!string.IsNullOrEmpty(salesRecordId))
+                    {
+
+                        string message =
+                            "Product's <span class='actionTopic'>Sales Recorded</span> Successfully with Sale ID: <span class='actionTopic'>" +
+                            salesRecordId + "</span>.";
+                        MyAlertBox(
+                            "var callbackOk = function () { MyOverlayStart(); window.location = \"/UI/SalesOrder/SalesOrderList.aspx\"; }; SuccessAlert(\"" +
+                            "Process Succeed" + "\", \"" + message + "\", callbackOk);");
+                        //}
+                        //MyAlertBox("alert(\"Retail Sales Created Successfully with Sales ID: " + salesRecordId.Trim() + " \"); window.location=\"/UI/Sales/RetailSalesList.aspx\"");
+                        //Response.Redirect("/UI/Sales/RetailSalesList.aspx", false);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                if (ex.InnerException != null) { message += " --> " + ex.InnerException.Message; }
+                MyAlertBox("ErrorAlert(\"" + ex.GetType() + "\", \"" + message + "\", \"\");");
+            }
+            finally
+            {
+                salesOrder = null;
+                dtPrdList = null;
+            }
+        }
+
+    }
+}

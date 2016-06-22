@@ -1,0 +1,48 @@
+﻿
+using System;
+using System.Collections.Generic;
+using Lumex.Project.DAL;
+using Lumex.Tech;
+namespace Lumex.Project.BLL
+{
+    public class PurchaseReturnBLL
+    {
+        //Purchase Return Fields
+        public string VendorId { get; set; }
+        public string PurchaseRecordId { get; set; }
+        public string ReturnId { get; set; }
+        public string ReturnFrom { get; set; }
+        public string WHSCId { get; set; }
+        public string Narration { get; set; }
+        public string Status { get; set; }
+        public string ReturnDate { get; set; }
+        //Purchase Return Product List Fields
+        public string ProductId { get; set; }
+        public string ReturnQuantity { get; set; }
+        public string ApprovedQuantity { get; set; }
+        public string ProductNarration { get; set; }
+        public string ProductStatus { get; set; }
+
+        public string SavePurchaseReturn(List<PurchaseReturnBLL> purchaseReturns, string whscId, string narration)
+        {
+            PurchaseReturnDAL purchaseReturn = new PurchaseReturnDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                string productRequisitionId = purchaseReturn.SavePurchaseReturn(purchaseReturns, whscId, narration, db);
+                db.Stop();
+
+                return productRequisitionId;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                purchaseReturn = null;
+            }
+        }
+    }
+}

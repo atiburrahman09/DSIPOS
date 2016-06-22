@@ -1,0 +1,131 @@
+﻿/* File Created by: LumexTech Solution Ltd. */
+
+.login-bg
+{
+    background: #ebeff4;
+}
+body
+{
+    background-color: #F3F3F3;
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.bolder
+{
+    font-weight: bolder;
+}
+
+.bg-color-lmxblue
+{
+    background-color: #41a9f0;
+}
+
+.bg-color-tomato
+{
+    background-color: #ff6347;
+}
+
+.bg-color-aqqa
+{
+    background-color: #1fbba6;
+}
+
+.bg-color-megenta
+{
+    background-color: #f17398;
+}
+
+.bg-color-orange
+{
+    background-color: #fdab3a;
+}
+
+.bg-color-hard-blue
+{
+    background-color: #1B3E6B;
+}
+
+.bg-color-smoooth-green
+{
+    background-color: #58d4a3;
+}
+
+.bg-color-gray
+{
+    background-color: #f3f3f3 !important;
+}
+
+.border-right-1px
+{
+    border-right: 1px solid #dddddd;
+}
+
+.border-bootm-1px
+{
+    border-bottom: 1px solid #dddddd;
+}
+
+.text-color-white
+{
+    color: #ffffff !important;
+}
+
+.box-shadow-none
+{
+    box-shadow: none !important;
+}
+
+.circle-slider-min
+{
+    margin-left:-142px !important; 
+    margin-top:56px !important;
+}
+
+.padding-top-10px
+{
+    padding-top: 10px;
+}
+
+.padding-top-55px
+{
+    padding-top: 55px !important;
+}
+
+.padding-all-1px
+{
+    padding: 1px;
+}
+
+.padding-top-bottom-5px
+{
+    padding: 5px 0;
+}
+
+.link-hover:hover
+{
+    color: #5c5c5c !important;
+}
+
+.link-hover-opacity:hover
+{
+    opacity: 0.8;
+    filter:alpha(opacity=80);
+}
+
+.margin-bottom-20px
+{
+    margin-bottom: 20px;
+}
+#loadingImg
+{
+    background-image: url('/content/images/loading.gif');
+    height: 100px;
+    width: 100px;
+    background-position: center;
+    background-size: contain;
+    margin: 30px 0 0 75px;
+}

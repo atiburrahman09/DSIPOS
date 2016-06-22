@@ -1,0 +1,545 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App.Master" AutoEventWireup="true" EnableEventValidation="false"
+    CodeBehind="CreateSalesOrder.aspx.cs" Inherits="lmxIpos.UI.SalesOrder.CreateSalesOrder" %>
+
+<asp:Content ID="headContent" ContentPlaceHolderID="headContentPlaceHolder" runat="server">
+    <link href="/Content/Style/CSSPages/CreateSalesOrder.css" rel="stylesheet" type="text/css" />
+</asp:Content>
+<asp:Content ID="bodyContent" ContentPlaceHolderID="bodyContentPlaceHolder" runat="server">
+    <asp:UpdatePanel runat="server" UpdateMode="Conditional" ID="UpdatePanel1" ChildrenAsTriggers="True">
+        <ContentTemplate>
+            <div class="title-sitemap grid-12">
+                <h1 class="grid-6">
+                    <i>&#xf132;</i>Create Sales Order<span>Creating Sales Order</span></h1>
+                <div class="sitemap grid-6">
+                    <%--<ul>
+                        <li><span>Acura</span><i>/</i></li>
+                        <li><a href="Default.aspx">Dashboard</a></li>
+                    </ul>--%>
+                </div>
+            </div>
+            <div class="data">
+                <div id="msgbox" runat="server" visible="false" class="alert alert-error">
+                    <button type="button" class="close" data-dismiss="alert">
+                        &times;</button>
+                    <h4>
+                        <asp:Label ID="msgTitleLabel" runat="server" Text=""></asp:Label>
+                    </h4>
+                    <asp:Label ID="msgDetailLabel" runat="server" Text=""></asp:Label>
+                </div>
+                <div class="widget">
+                    <header class="widget-header">
+                        <div class="widget-header-icon">
+                            
+                        </div>
+                        <h3 id="Header3" runat="server" class="widget-header-title">Create Sales Order Form</h3>
+                    </header>
+                    <div class="widget-body no-padding">
+                        <div class="widget-separator grid-12">
+                            <div class="widget-separator no-border grid-3">
+                                <h5 class="typo">Sales Center Name</h5>
+                                <asp:DropDownList ID="salesCenterDropDownList" runat="server" AutoPostBack="true"
+                                    OnSelectedIndexChanged="salesCenterDropDownList_SelectedIndexChanged" CssClass="form form-full">
+                                </asp:DropDownList>
+                            </div>
+                            <div class="widget-separator no-border grid-3">
+                                <h5 class="typo">Product By [Barcode, ID, Name]</h5>
+                                <asp:TextBox ID="productTextBox" runat="server" onfocus="this.select()" CssClass="form form-full"></asp:TextBox>
+                            </div>
+                            <div class="widget-separator no-border grid-4" style="margin-top: 29px;">
+                                <asp:Button ID="addProductButton" CssClass="btn btn-info" runat="server" Text="Add Product"
+                                    OnClick="addProductButton_Click" />
+                                <asp:Button ID="addFromListButton" CssClass="btn btn-success" runat="server" Text="Add from List"
+                                    OnClientClick="return false;" />
+                            </div>
+                        </div>
+
+                        <div class="widget-separator no-border grid-12"></div>
+                        <div class="widget-separator no-border grid-12">
+                            <div class="grid-12">
+                                <h4>Selected Product List</h4>
+                            </div>
+                            <div class="widget-separator no-border grid-12">
+                                <div id="selectedProductListGridContainer">
+                                    <asp:GridView ID="selectedProductListGridView" runat="server" AutoGenerateColumns="false"
+                                        CssClass="table table-hover gridView">
+                                        <Columns>
+                                            <asp:BoundField DataField="Barcode" HeaderText="Barcode" />
+                                            <asp:BoundField DataField="ProductId" HeaderText="Product ID" />
+                                            <asp:BoundField DataField="ProductName" HeaderText="Product Name" />
+                                            <asp:BoundField DataField="FreeQuantity" HeaderText="Available" />
+                                            <asp:BoundField DataField="Unit" HeaderText="Unit" />
+                                            <asp:TemplateField HeaderText="Quantity">
+                                                <ItemTemplate>
+                                                    <asp:TextBox ID="orderQuantityTextBox" runat="server" CssClass="oQty-rpu-amt-cal validQty autoCompeleteOff"></asp:TextBox>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                            <asp:TemplateField HeaderText="Rate Per Unit">
+                                                <ItemTemplate>
+                                                    <asp:TextBox ID="ratePerUnitTextBox" runat="server" CssClass="oQty-rpu-amt-cal autoCompeleteOff"></asp:TextBox>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                            <asp:TemplateField HeaderText="Amount">
+                                                <ItemTemplate>
+                                                    <asp:TextBox ID="amountTextBox" runat="server" CssClass="read-only autoCompeleteOff"></asp:TextBox>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                            <asp:TemplateField HeaderText="">
+                                                <ItemTemplate>
+                                                    <asp:LinkButton ID="removeLinkButton" runat="server" CssClass="btn btn-mini btn-inverse"
+                                                        OnClick="removeLinkButton_Click">Remove</asp:LinkButton>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                        </Columns>
+                                    </asp:GridView>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+
+    <%--dd--%>
+    <div id="body_content">
+        <fieldset>
+            <legend></legend>
+
+            <table class="inputControlContainer filterPane">
+                <tr>
+                    <td>
+                        <label>
+                        </label>
+
+                    </td>
+                    <td>
+                        <label>
+                        </label>
+
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </fieldset>
+        <fieldset>
+            <legend>Selected Product List </legend>
+
+            <hr />
+            <table class="inputControlContainer">
+                <tr>
+                    <td>
+                        <label>
+                            Total Amount
+                        </label>
+                        <asp:TextBox ID="totalAmountTextBox" CssClass="read-only" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            VAT (%)
+                        </label>
+                        <asp:TextBox ID="vatTextBox" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Total Receivable
+                        </label>
+                        <asp:TextBox ID="totalReceivableTextBox" CssClass="read-only" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Received Amount
+                        </label>
+                        <asp:TextBox ID="receivedAmountTextBox" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <fieldset>
+            <legend>Sales Information</legend>
+            <table class="inputControlContainer">
+                <tr>
+                    <td>
+                        <label>
+                            Customer ID
+                        </label>
+                        <asp:DropDownList ID="customerIdDropDownList" runat="server">
+                        </asp:DropDownList>
+                    </td>
+                    <td>
+                        <label>
+                            Customer Name
+                        </label>
+                        <asp:TextBox ID="customerNameTextBox" runat="server" CssClass="customerInfo"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Customer Contact Number
+                        </label>
+                        <asp:TextBox ID="customerContactNumberTextBox" runat="server" CssClass="customerInfo"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Customer Address
+                        </label>
+                        <asp:TextBox ID="customerAddressTextBox" runat="server" CssClass="customerInfo"></asp:TextBox>
+                    </td>
+                </tr>
+            </table>
+            <hr />
+            <table class="inputControlContainer">
+                <tr>
+                    <td>
+                        <label>
+                            Transport Type
+                        </label>
+                        <asp:DropDownList ID="transportTypeDropDownList" runat="server">
+                            <asp:ListItem></asp:ListItem>
+                            <asp:ListItem>Air</asp:ListItem>
+                            <asp:ListItem>Road</asp:ListItem>
+                            <asp:ListItem>Ship</asp:ListItem>
+                        </asp:DropDownList>
+                    </td>
+                    <td>
+                        <label>
+                            Shipping Address
+                        </label>
+                        <asp:TextBox ID="shippingAddressTextBox" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Billing Address
+                        </label>
+                        <asp:TextBox ID="billingAddressTextBox" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Payment Mode
+                        </label>
+                        <asp:DropDownList ID="paymentModeDropDownList" runat="server">
+                            <asp:ListItem>Cash</asp:ListItem>
+                            <asp:ListItem>Cheque</asp:ListItem>
+                        </asp:DropDownList>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Cheque Number
+                        </label>
+                        <asp:TextBox ID="chequeNumberTextBox" runat="server" CssClass="cash-cheque"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Cheque Date
+                        </label>
+                        <i class="icon-calendar"></i>
+                        <asp:TextBox ID="chequeDateTextBox" CssClass="date-textbox cash-cheque" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Bank
+                        </label>
+                        <asp:DropDownList ID="bankDropDownList" runat="server" CssClass="cash-cheque">
+                        </asp:DropDownList>
+                    </td>
+                    <td>
+                        <label>
+                            Bank Branch
+                        </label>
+                        <asp:TextBox ID="bankBranchTextBox" runat="server" CssClass="cash-cheque"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Sales Person ID
+                        </label>
+                        <asp:DropDownList ID="salesPersonIdDropDownList" runat="server">
+                        </asp:DropDownList>
+                    </td>
+                    <td>
+                        <label>
+                            Delivery Date
+                        </label>
+                        <i class="icon-calendar"></i>
+                        <asp:TextBox ID="deliveryDateTextBox" CssClass="date-textbox" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            LC Number
+                        </label>
+                        <asp:TextBox ID="lcNumberTextBox" runat="server"></asp:TextBox>
+                    </td>
+                    <td>
+                        <label>
+                            Narration
+                        </label>
+                        <asp:TextBox ID="narrationTextBox" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+            </table>
+            <hr />
+            <asp:Button ID="saveButton" CssClass="btn btn-primary" Enabled="false" runat="server"
+                Text="Save" OnClick="saveButton_Click" />
+        </fieldset>
+        <div id="productListModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+            aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;</button>
+                <h3>Available Product List
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div id="productListGridContainer" class="">
+                    <asp:GridView ID="productListGridView" runat="server" AutoGenerateColumns="false"
+                        CssClass="table table-hover">
+                        <Columns>
+                            <asp:BoundField DataField="Barcode" HeaderText="Barcode" />
+                            <asp:BoundField DataField="ProductId" HeaderText="Product ID" />
+                            <asp:BoundField DataField="ProductName" HeaderText="Product Name" />
+                            <asp:BoundField DataField="Unit" HeaderText="Unit" />
+                            <asp:BoundField DataField="ProductGroupName" HeaderText="Product Group" />
+                            <asp:BoundField DataField="FreeQuantity" HeaderText="Available" />
+                            <asp:BoundField DataField="Price" HeaderText="Price" />
+                            <asp:TemplateField>
+                                <HeaderTemplate>
+                                    <asp:CheckBox ID="allCheckBox" runat="server" />
+                                </HeaderTemplate>
+                                <ItemTemplate>
+                                    <asp:CheckBox ID="selectCheckBox" runat="server" CssClass="clickCheckBox" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                    </asp:GridView>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <asp:Button ID="addSelectedProductButton" runat="server" CssClass="btn btn-success"
+                    Text="Add Selected Product(s)" OnClick="addSelectedProductButton_Click" />
+            </div>
+        </div>
+    </div>
+    <asp:HiddenField ID="checkedRowCountHiddenField" runat="server" />
+</asp:Content>
+<asp:Content ID="scriptContent" ContentPlaceHolderID="scriptContentPlaceHolder" runat="server">
+    <script type="text/javascript">
+        $(function () {
+            var checkedRowCount = $("#checkedRowCountHiddenField").val();
+
+            if ($("#paymentModeDropDownList option:selected").text() == "Cash") {
+                $(".cash-cheque").attr("disabled", true);
+            }
+
+            if ($("#customerIdDropDownList option:selected").text() != "Retail") {
+                $(".customerInfo").attr("disabled", true);
+            }
+
+            $(".read-only").attr("ReadOnly", true);
+            //$(".autoCompeleteOff").attr('autocomplete', 'off');
+
+            $("#addSelectedProductButton").click(function () {
+                $("#checkedRowCountHiddenField").val(checkedRowCount);
+                $("#form1").validate().currentForm = "";
+            });
+
+            $("#addProductButton").click(function () {
+                $('input, select, textarea').each(function () {
+                    $(this).rules('remove');
+                });
+
+                $("#productTextBox").rules("add", {
+                    required: true
+                });
+            });
+
+            $(".validQty").on("change keyup", function () {
+                if ($(this).val() != "" && !isNaN($(this).val()) && ($(this).val() == parseInt($(this).val())) && $(this).val() > 0) {
+                    $(this).removeClass("validGridControl");
+                } else {
+                    $(this).addClass("validGridControl");
+                }
+            });
+
+            $("#saveButton").click(function (e) {
+                var countGridValid = 0;
+
+                $("#productTextBox").rules("remove");
+
+                $(".validQty").each(function () {
+                    if ($(this).val() == "" || isNaN($(this).val()) || ($(this).val() != parseInt($(this).val())) || $(this).val() < 1) {
+                        $(this).addClass("validGridControl");
+                        countGridValid++;
+                    }
+                });
+
+
+
+                if ($("#paymentModeDropDownList option:selected").text() != "Cash") {
+                    $(".cash-cheque").removeAttr("disabled");
+
+                    $("#bankDropDownList").rules("add", {
+                        required: true
+                    });
+
+                    $("#bankBranchTextBox").rules("add", {
+                        required: true
+                    });
+
+                    $("#chequeNumberTextBox").rules("add", {
+                        required: true
+                    });
+
+                    $("#chequeDateTextBox").rules("add", {
+                        required: true
+                    });
+                }
+
+                if (countGridValid > 0) {
+                    //return false;
+                    e.preventDefault();
+                    $("#form1").valid();
+                    alert('Some required field(s) are left blank or invalid inside the Product List table, please follow the field(s).');
+
+                    $("html, body").animate({
+                        scrollTop: $("#selectedProductListGridContainer").offset().top - 150
+                    }, 500);
+                }
+            });
+
+            $("#paymentModeDropDownList").on("change", function () {
+                if ($("#paymentModeDropDownList option:selected").text() == "Cash") {
+                    $(".cash-cheque").attr("disabled", true);
+                    //$(".cash-cheque").val("");
+                } else {
+                    $(".cash-cheque").removeAttr("disabled");
+                }
+            });
+
+            $("#customerIdDropDownList").on("change", function () {
+                if ($("#customerIdDropDownList option:selected").text() != "Retail") {
+                    $(".customerInfo").attr("disabled", true);
+                } else {
+                    $(".customerInfo").removeAttr("disabled");
+                }
+            });
+
+            var dateFormat = '<%= Session["DateFormatForDatePicker"] %>';
+            $(".date-textbox").datepicker({ format: dateFormat });
+            $(".date-textbox, .icon-calendar").click(function () {
+                $(this).parent().find(".date-textbox").focus();
+            });
+
+            //$.ajax({
+            //    type: "POST",
+            //    url: "/AutoCompletePage.aspx/GetProductNames",
+            //    data: "{}",
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    success: function (data) {
+            //        $("#productTextBox").autocomplete(data.d.toString().split("\r\n"));
+            //    }
+            //});
+
+            $.ajax({
+                type: "POST",
+                url: "/Services/ProductSearchforSale.ashx?id=" + $('#salesCenterDropDownList').val(),
+                success: function (d) {
+                    var array = [];
+                    d.split(';').forEach(function (value) {
+                        array.push(value);
+                    });
+                    $('#productTextBox').typeahead({ source: array });
+
+                }
+            });
+
+            $("#selectedProductListGridView").dataTable({
+                "bProcessing": true,
+                "sPaginationType": "full_numbers",
+                "aLengthMenu": [[10, 15, 20, -1], [10, 15, 20, "All"]],
+                "iDisplayLength": -1,
+                "bSort": false,
+                //"aoColumnDefs": [{ 'bSortable': false, 'aTargets': [0, 1, 2, 3, 4, 5, 6, 7]}],
+                "bFilter": false,
+                "bLengthChange": true,
+                "bPaginate": false,
+                "bInfo": true
+            });
+
+            $("#selectedProductListGridView_wrapper .row-fluid:nth-child(1)").css("display", "none");
+
+            $("#addFromListButton").click(function () {
+                $('#productListModal').modal();
+            });
+
+            $("#productListGridView").dataTable({
+                "bProcessing": true,
+                "sPaginationType": "full_numbers",
+                "aLengthMenu": [[-1], ["All"]],
+                "iDisplayLength": -1,
+                "aoColumnDefs": [{ 'bSortable': false, 'aTargets': [5, 6, 7] }],
+                "bFilter": true,
+                "bLengthChange": true,
+                "bPaginate": false,
+                "bInfo": true
+            });
+
+            $("#allCheckBox").click(function () {
+                if ($(this).is(":checked")) {
+                    $(".clickCheckBox>#selectCheckBox").prop('checked', true);
+                    checkedRowCount = $(".clickCheckBox").length;
+                } else {
+                    $(".clickCheckBox>#selectCheckBox").prop('checked', false);
+                    checkedRowCount = 0;
+                }
+            });
+
+            $(".clickCheckBox").click(function () {
+                if ($(this).find("#selectCheckBox").is(":checked")) {
+                    checkedRowCount++;
+                    if (checkedRowCount == $(".clickCheckBox").length) {
+                        $("#allCheckBox").prop('checked', true);
+                    }
+                } else {
+                    checkedRowCount--;
+                    $("#allCheckBox").prop('checked', false);
+
+                    if (checkedRowCount < 1) {
+                        checkedRowCount = 0;
+                    }
+                }
+            });
+
+            $(".oQty-rpu-amt-cal").on("change keyup", function () {
+                var tAmt = +$("#totalAmountTextBox").val();
+                var pAmt = +$(this).closest('tr').find("[id*=amountTextBox]").val();
+
+                if (!isNaN(tAmt) && !isNaN(pAmt) && tAmt >= pAmt) {
+                    tAmt = tAmt - pAmt;
+                    $("#totalAmountTextBox").val(tAmt);
+                }
+
+                var qty = +$(this).closest('tr').find("[id*=orderQuantityTextBox]").val();
+                var rate = +$(this).closest('tr').find("[id*=ratePerUnitTextBox]").val();
+                var amt = qty * rate;
+
+                $(this).parent().parent().find("[id*=amountTextBox]").val(amt);
+
+                if (!isNaN(amt)) {
+                    $("#totalAmountTextBox").val(tAmt + amt);
+                }
+
+                if (!isNaN(+$("#totalAmountTextBox").val()) && !isNaN($("#vatTextBox").val())) {
+                    $("#totalReceivableTextBox").val(($("#totalAmountTextBox").val() * ($("#vatTextBox").val() / 100)) + +$("#totalAmountTextBox").val());
+                }
+            });
+
+            $("#vatTextBox").on("change keyup", function () {
+                if (!isNaN(+$("#totalAmountTextBox").val())) {
+                    $("#totalReceivableTextBox").val(($("#totalAmountTextBox").val() * ($("#vatTextBox").val() / 100)) + +$("#totalAmountTextBox").val());
+                }
+            });
+        });
+    </script>
+</asp:Content>

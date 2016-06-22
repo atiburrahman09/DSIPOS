@@ -1,0 +1,326 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using Lumex.Project.DAL;
+using Lumex.Tech;
+
+namespace Lumex.Project.BLL
+{
+    public class VendorBLL
+    {
+        public string VendorId { get; set; }
+        public string VendorName { get; set; }
+        public string Address { get; set; }
+        public string Country { get; set; }
+        public string City { get; set; }
+        public string District { get; set; }
+        public string PostalCode { get; set; }
+        public string Phone { get; set; }
+        public string Mobile { get; set; }
+        public string Fax { get; set; }
+        public string Email { get; set; }
+
+        public DataTable SaveVendor()
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                DataTable dt = vendor.SaveVendor(this, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public void SaveProductVendorsByProductId(string productId, List<string> vendors)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                vendor.SaveProductVendorsByProductId(productId, vendors, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetVendorList()
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetVendorList(db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetVendorListByActivationStatus(string isActive)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetVendorListByActivationStatus(isActive, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetVendorListByActivationStatusAndProduct(string isActive, string productBarcodeIdName)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetVendorListByActivationStatusAndProduct(isActive, productBarcodeIdName, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetDeletedVendorListByDateRangeAll(string fromDate, string toDate, string search)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetDeletedVendorListByDateRangeAll(fromDate, toDate, search, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetProductVendorsByProductId(string productId)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetProductVendorsByProductId(productId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetActiveVendors()
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetActiveVendors(db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public DataTable GetVendorById(string vendorId)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetVendorById(vendorId, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public bool CheckDuplicateVendor(string vendorName,string warehouse,string salesCenter)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                bool status = vendor.CheckDuplicateVendor(vendorName,warehouse,salesCenter, db);
+                db.Stop();
+                return status;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public void UpdateVendorActivation(string vendorId, string activationStatus)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                vendor.UpdateVendorActivation(vendorId, activationStatus, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public void DeleteVendor(string vendorId)
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                vendor.DeleteVendor(vendorId, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public void UpdateVendor()
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start(true);
+                vendor.UpdateVendor(this, db);
+                db.Stop();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+
+        public string warehouse { get; set; }
+
+        public string salescenter { get; set; }
+
+        public DataTable GetActiveVendorsListByWHID()
+        {
+            VendorDAL vendor = new VendorDAL();
+
+            try
+            {
+                LumexDBPlayer db = LumexDBPlayer.Start();
+                DataTable dt = vendor.GetActiveVendorsListByWHID(this, db);
+                db.Stop();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                vendor = null;
+            }
+        }
+    }
+}
